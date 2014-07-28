@@ -1,0 +1,17 @@
+name: PeculiarItems
+main: au.com.mineauz.peculiaritems.Main
+version: 1.0.0
+author: _Razz_
+
+commands:
+  peculiar:
+    description: The Peculiar Items base command.
+    usage: Invalid command. Type "/peculiar help" for help
+    permission: peculiar.command
+    permisison-message: You don't have permission to use this command <permission>
+    aliases: [pcr]
+
+permissions:
+  peculiar.command:
+    description: Allows a player to use the base command.
+    default: op
