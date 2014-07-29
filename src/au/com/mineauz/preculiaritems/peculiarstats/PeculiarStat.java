@@ -31,6 +31,7 @@ public abstract class PeculiarStat {
 		ls.add("Unbelevable");
 		ls.add("Super");
 		ls.add("Ultimate");
+		ls.add("Herobrine's Own");
 		return ls;
 	}
 	

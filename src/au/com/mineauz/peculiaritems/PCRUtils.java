@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -30,7 +31,7 @@ public class PCRUtils {
 	}
 	
 	public static boolean isPeculiarItem(ItemStack item){
-		if(item == null) return false;
+		if(item == null || item.getType() == Material.AIR) return false;
 		if(item.getItemMeta().getLore() != null && item.getItemMeta().getLore().get(0).equals(ChatColor.GOLD + "---Peculiar Item---")){
 			return true;
 		}

@@ -11,6 +11,7 @@ public class PeculiarStats {
 	
 	static{
 		addStat(new BlocksBokenStat());
+		addStat(new MonstersKilledStat());
 	}
 	
 	public static void addStat(PeculiarStat stat){
