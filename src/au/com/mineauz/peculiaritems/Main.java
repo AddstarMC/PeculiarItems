@@ -2,6 +2,7 @@ package au.com.mineauz.peculiaritems;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.bukkit.plugin.java.JavaPlugin;
@@ -10,7 +11,8 @@ import au.com.mineauz.preculiaritems.commands.CommandDispatcher;
 
 public class Main extends JavaPlugin{
 	
-	private List<Integer> rankValues = new ArrayList<Integer>();
+	private static List<Integer> rankValues = new ArrayList<Integer>();
+	private static boolean broadcastRank = true;
 	
 	@Override
 	public void onEnable(){
@@ -26,10 +28,10 @@ public class Main extends JavaPlugin{
 			e.printStackTrace();
 		}
 		
-		for(String rank : getConfig().getStringList("rankValues")){
+		for(String rank : getConfig().getStringList("rankNumbers")){
 			if(!rank.matches("[0-9]+")){
 				rankValues.clear();
-				for(String rank2 : getConfig().getDefaults().getStringList("rankValues")){
+				for(String rank2 : getConfig().getDefaults().getStringList("rankNumbers")){
 					rankValues.add(Integer.valueOf(rank2));
 				}
 				break;
@@ -37,6 +39,8 @@ public class Main extends JavaPlugin{
 			else
 				rankValues.add(Integer.valueOf(rank));
 		}
+		Collections.sort(rankValues);
+		broadcastRank = getConfig().getBoolean("broadcastRankIncrease");
 
 		CommandDispatcher comd = new CommandDispatcher();
 		getCommand("peculiar").setExecutor(comd);
@@ -50,6 +54,14 @@ public class Main extends JavaPlugin{
 	public void onDisable(){
 		rankValues.clear();
 		getLogger().info("Peculiar Items successfully disabled!");
+	}
+	
+	public static List<Integer> getRankValues(){
+		return new ArrayList<>(rankValues);
+	}
+	
+	public static boolean isBroadcastingRankUp(){
+		return broadcastRank;
 	}
 
 }

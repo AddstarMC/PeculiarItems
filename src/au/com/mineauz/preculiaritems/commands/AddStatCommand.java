@@ -51,7 +51,7 @@ public class AddStatCommand implements ICommand {
 				String arg = args[0].toUpperCase();
 				if(PeculiarStats.getStat(arg) != null){
 					PCRUtils.setPeculiarItem(ply.getItemInHand());
-					PeculiarStats.getStat(arg).incrementStat(ply.getItemInHand(), 0);
+					PeculiarStats.getStat(arg).incrementStat(ply, ply.getItemInHand(), 0);
 				}
 				else{
 					ply.sendMessage(ChatColor.RED + "No stat by the name " + arg);
@@ -59,7 +59,7 @@ public class AddStatCommand implements ICommand {
 			}
 			else{
 				PCRUtils.setPeculiarItem(ply.getItemInHand());
-				PeculiarStats.getRandomStat().incrementStat(ply.getItemInHand(), 0);
+				PeculiarStats.getRandomStat().incrementStat(ply, ply.getItemInHand(), 0);
 			}
 			return true;
 		}

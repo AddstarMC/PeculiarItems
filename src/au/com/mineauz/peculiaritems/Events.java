@@ -15,7 +15,7 @@ public class Events implements Listener{
 		
 		if(PCRUtils.isPeculiarItem(ply.getItemInHand())){
 			if(PeculiarStats.getStat("BLOCKS_BROKEN").hasStat(ply.getItemInHand())){
-				PeculiarStats.getStat("BLOCKS_BROKEN").incrementStat(ply.getItemInHand(), 1);
+				PeculiarStats.getStat("BLOCKS_BROKEN").incrementStat(ply, ply.getItemInHand(), 1);
 			}
 		}
 	}

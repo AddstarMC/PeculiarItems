@@ -47,8 +47,28 @@ public class PCRUtils {
 		else
 			lore = meta.getLore();
 		
+		meta.setDisplayName("" + ChatColor.RESET + ChatColor.GOLD + "Peculiar " + getItemName(item));
 		lore.add(0, ChatColor.GOLD + "---Peculiar Item---");
 		meta.setLore(lore);
 		item.setItemMeta(meta);
+	}
+	
+	public static String capitalize(String toCapitalize){
+		String val = toCapitalize.toLowerCase();
+		String[] spl = val.split(" ");
+		val = "";
+		for(String s : spl){
+			String c = Character.toString(s.charAt(0));
+			s = s.substring(1);
+			c = c.toUpperCase();
+			s = c + s;
+			val += s + " ";
+		}
+		val = val.trim();
+		return val;
+	}
+	
+	public static String getItemName(ItemStack item){
+		return capitalize(item.getType().toString().replace("_", " "));
 	}
 }
