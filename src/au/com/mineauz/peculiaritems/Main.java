@@ -13,9 +13,12 @@ public class Main extends JavaPlugin{
 	
 	private static List<Integer> rankValues = new ArrayList<Integer>();
 	private static boolean broadcastRank = true;
+	private static Main plugin;
 	
 	@Override
 	public void onEnable(){
+		
+		plugin = this;
 		
 		File conf = new File(getDataFolder() + "/" + "config.yml");
 		if(!conf.exists()){
@@ -62,6 +65,10 @@ public class Main extends JavaPlugin{
 	
 	public static boolean isBroadcastingRankUp(){
 		return broadcastRank;
+	}
+	
+	public static Main getPlugin(){
+		return plugin;
 	}
 
 }

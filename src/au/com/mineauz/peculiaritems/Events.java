@@ -7,7 +7,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 
+import au.com.mineauz.preculiaritems.peculiarstats.PeculiarStat;
 import au.com.mineauz.preculiaritems.peculiarstats.PeculiarStats;
 
 public class Events implements Listener{
@@ -35,6 +38,31 @@ public class Events implements Listener{
 					}
 				}
 			}
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	@EventHandler(ignoreCancelled = true)
+	private void anvilClickEvent(InventoryClickEvent event){
+		if(event.getClick().isRightClick() && 
+				PCRUtils.isPeculiarItemModifier(event.getCursor()) &&
+				event.getCurrentItem() != null){
+
+			ItemStack item = event.getCurrentItem();
+			ItemStack nitem = item.clone();
+			ItemStack mod = event.getCursor();
+			
+			PCRUtils.setPeculiarItem(nitem);
+			
+			for(PeculiarStat stat : PeculiarStats.getAllStats()){
+				if(stat.hasStat(mod)){
+					stat.incrementStat((Player)event.getWhoClicked(), nitem, 0);
+				}
+			}
+			
+			event.setCurrentItem(nitem);
+			event.setCancelled(true);
+			event.setCursor(null);
 		}
 	}
 

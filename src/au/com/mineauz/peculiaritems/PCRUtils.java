@@ -38,6 +38,17 @@ public class PCRUtils {
 		return false;
 	}
 	
+	public static boolean isPeculiarItemModifier(ItemStack item){
+		if(item == null || item.getType() == Material.AIR) return false;
+		if(item.getItemMeta().getLore() != null && 
+				item.getItemMeta().getLore().get(0).equals(ChatColor.GOLD + "---Peculiar Item---") && 
+				(item.getType() == Material.NAME_TAG || item.getType() == Material.DIAMOND || 
+				item.getType() == Material.GOLD_INGOT || item.getType() == Material.IRON_INGOT)){
+			return true;
+		}
+		return false;
+	}
+	
 	public static void setPeculiarItem(ItemStack item){
 		if(item == null) return;
 		if(isPeculiarItem(item)) return;

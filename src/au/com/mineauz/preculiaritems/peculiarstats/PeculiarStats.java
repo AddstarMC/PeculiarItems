@@ -28,4 +28,8 @@ public class PeculiarStats {
 		Collections.shuffle(s);
 		return s.get(0);
 	}
+	
+	public static List<PeculiarStat> getAllStats(){
+		return new ArrayList<PeculiarStat>(stats.values());
+	}
 }
