@@ -36,7 +36,7 @@ public abstract class PeculiarStat {
 	}
 	
 	public boolean hasStat(ItemStack item){
-		if(PCRUtils.isPeculiarItem(item)){
+		if(PCRUtils.isPeculiarItem(item) || PCRUtils.isPeculiarModifier(item)){
 			for(String lore : item.getItemMeta().getLore()){
 				if(ChatColor.stripColor(lore).matches(getDisplayName() + ": " + "[0-9]+")){
 					return true;
@@ -47,29 +47,21 @@ public abstract class PeculiarStat {
 	}
 	
 	public void incrementStat(Player player, ItemStack item, int amount){
-		if(PCRUtils.isPeculiarItem(item)){
+		if(PCRUtils.isPeculiarItem(item) || PCRUtils.isPeculiarModifier(item)){
 			ItemMeta meta = item.getItemMeta();
 			int inc = 0;
-			int line = -1;
 			List<String> lore = meta.getLore();
 			for(String l : lore){
 				if(ChatColor.stripColor(l).matches(getDisplayName() + ": " + "[0-9]+")){
 					inc = Integer.valueOf(ChatColor.stripColor(l).replace(getDisplayName() + ": ", ""));
-					line = meta.getLore().indexOf(l);
 					break;
 				}
 			}
 			
 			inc += amount;
 			
-			if(line != -1){
-				lore.set(line, getDisplayColor() + getDisplayName() + ": " + inc);
-			}
-			else{
-				lore.add(getDisplayColor() + getDisplayName() + ": " + inc);
-			}
-			
-			meta.setLore(lore);
+			addStat(item, inc);
+			meta = item.getItemMeta();
 			
 			List<Integer> rankValues = Main.getRankValues();
 			
@@ -93,6 +85,30 @@ public abstract class PeculiarStat {
 				}
 			}
 			
+			item.setItemMeta(meta);
+		}
+	}
+	
+	public void addStat(ItemStack item, int amount){
+		if(PCRUtils.isPeculiarItem(item) || PCRUtils.isPeculiarModifier(item)){
+			ItemMeta meta = item.getItemMeta();
+			int line = -1;
+			List<String> lore = meta.getLore();
+			for(String l : lore){
+				if(ChatColor.stripColor(l).matches(getDisplayName() + ": " + "[0-9]+")){
+					line = meta.getLore().indexOf(l);
+					break;
+				}
+			}
+			
+			if(line != -1){
+				lore.set(line, getDisplayColor() + getDisplayName() + ": " + amount);
+			}
+			else{
+				lore.add(getDisplayColor() + getDisplayName() + ": " + amount);
+			}
+			
+			meta.setLore(lore);
 			item.setItemMeta(meta);
 		}
 	}

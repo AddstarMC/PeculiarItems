@@ -10,6 +10,30 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class PCRUtils {
 	
+	private static List<String> items = new ArrayList<String>();
+	
+	static{
+		items.add("AXE");
+		items.add("BOOTS");
+		items.add("CHESTPLATE");
+		items.add("HELMET");
+		items.add("HOE");
+		items.add("LEGGINGS");
+		items.add("PICKAXE");
+		items.add("SPADE");
+		items.add("SWORD");
+	}
+	
+	public static boolean matchMaterial(ItemStack modifier, ItemStack item){
+		String type = item.getType().toString().split("_")[1];
+		Material needed = Material.getMaterial(modifier.getType().toString().split("_")[0] + "_" + type);
+		if(needed != null || modifier.getType() == Material.NAME_TAG){
+			if((item.getType() == needed || modifier.getType() == Material.NAME_TAG) && items.contains(type))
+				return true;
+		}
+		return false;
+	}
+	
 	public static String arrayToString(String[] arr){
 		String st = ChatColor.GRAY + "";
 		boolean alt = false;
@@ -38,10 +62,10 @@ public class PCRUtils {
 		return false;
 	}
 	
-	public static boolean isPeculiarItemModifier(ItemStack item){
+	public static boolean isPeculiarModifier(ItemStack item){
 		if(item == null || item.getType() == Material.AIR) return false;
 		if(item.getItemMeta().getLore() != null && 
-				item.getItemMeta().getLore().get(0).equals(ChatColor.GOLD + "---Peculiar Item---") && 
+				item.getItemMeta().getLore().get(0).equals(ChatColor.GOLD + "---Peculiar Modifier---") && 
 				(item.getType() == Material.NAME_TAG || item.getType() == Material.DIAMOND || 
 				item.getType() == Material.GOLD_INGOT || item.getType() == Material.IRON_INGOT)){
 			return true;
@@ -51,7 +75,7 @@ public class PCRUtils {
 	
 	public static void setPeculiarItem(ItemStack item){
 		if(item == null) return;
-		if(isPeculiarItem(item)) return;
+		if(isPeculiarItem(item) || isPeculiarModifier(item)) return;
 		ItemMeta meta = item.getItemMeta();
 		List<String> lore;
 		if(meta.getLore() == null)
@@ -61,6 +85,26 @@ public class PCRUtils {
 		
 		meta.setDisplayName("" + ChatColor.RESET + ChatColor.GOLD + "Peculiar " + getItemName(item));
 		lore.add(0, ChatColor.GOLD + "---Peculiar Item---");
+		meta.setLore(lore);
+		item.setItemMeta(meta);
+	}
+	
+	public static void setPeculiarModifier(ItemStack item){
+		if(item == null) return;
+		if(isPeculiarItem(item) || isPeculiarModifier(item)) return;
+		ItemMeta meta = item.getItemMeta();
+		List<String> lore;
+		if(meta.getLore() == null)
+			lore = new ArrayList<String>();
+		else
+			lore = meta.getLore();
+		
+		meta.setDisplayName("" + ChatColor.RESET + ChatColor.GOLD + "Peculiar " + getItemName(item));
+		lore.add(0, ChatColor.GOLD + "---Peculiar Modifier---");
+		lore.add(1, ChatColor.AQUA + "Right click an item");
+		lore.add(2, ChatColor.AQUA + "in your inventory with");
+		lore.add(3, ChatColor.AQUA + "this to apply the");
+		lore.add(4, ChatColor.AQUA + "peculiar statistic.");
 		meta.setLore(lore);
 		item.setItemMeta(meta);
 	}

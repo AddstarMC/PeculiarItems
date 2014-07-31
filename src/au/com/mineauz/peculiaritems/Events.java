@@ -45,24 +45,26 @@ public class Events implements Listener{
 	@EventHandler(ignoreCancelled = true)
 	private void anvilClickEvent(InventoryClickEvent event){
 		if(event.getClick().isRightClick() && 
-				PCRUtils.isPeculiarItemModifier(event.getCursor()) &&
+				PCRUtils.isPeculiarModifier(event.getCursor()) &&
 				event.getCurrentItem() != null){
-
+			
 			ItemStack item = event.getCurrentItem();
-			ItemStack nitem = item.clone();
 			ItemStack mod = event.getCursor();
 			
-			PCRUtils.setPeculiarItem(nitem);
-			
-			for(PeculiarStat stat : PeculiarStats.getAllStats()){
-				if(stat.hasStat(mod)){
-					stat.incrementStat((Player)event.getWhoClicked(), nitem, 0);
+			if(PCRUtils.matchMaterial(mod, item)){
+				ItemStack nitem = item.clone();
+				PCRUtils.setPeculiarItem(nitem);
+				
+				for(PeculiarStat stat : PeculiarStats.getAllStats()){
+					if(stat.hasStat(mod)){
+						stat.addStat(nitem, 0);
+					}
 				}
+				
+				event.setCurrentItem(nitem);
+				event.setCancelled(true);
+				event.setCursor(null);
 			}
-			
-			event.setCurrentItem(nitem);
-			event.setCancelled(true);
-			event.setCursor(null);
 		}
 	}
 
