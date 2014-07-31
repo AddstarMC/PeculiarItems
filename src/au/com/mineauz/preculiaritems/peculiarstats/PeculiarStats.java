@@ -12,6 +12,7 @@ public class PeculiarStats {
 	static{
 		addStat(new BlocksBokenStat());
 		addStat(new MonstersKilledStat());
+		addStat(new TimesProtectedStat());
 	}
 	
 	public static void addStat(PeculiarStat stat){

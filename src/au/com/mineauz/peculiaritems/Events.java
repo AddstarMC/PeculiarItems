@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -15,7 +16,7 @@ import au.com.mineauz.preculiaritems.peculiarstats.PeculiarStats;
 
 public class Events implements Listener{
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	private void blockBreak(BlockBreakEvent event){
 		Player ply = event.getPlayer();
 		
@@ -26,7 +27,7 @@ public class Events implements Listener{
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	private void entityKill(EntityDeathEvent event){
 		if(event.getEntity() instanceof Monster){
 			LivingEntity ent = event.getEntity();
@@ -43,7 +44,7 @@ public class Events implements Listener{
 	
 	@SuppressWarnings("deprecation")
 	@EventHandler(ignoreCancelled = true)
-	private void anvilClickEvent(InventoryClickEvent event){
+	private void invClick(InventoryClickEvent event){
 		if(event.getClick().isRightClick() && 
 				PCRUtils.isPeculiarModifier(event.getCursor()) &&
 				event.getCurrentItem() != null){
@@ -69,6 +70,22 @@ public class Events implements Listener{
 					event.setCurrentItem(nitem);
 					event.setCancelled(true);
 					event.setCursor(null);
+				}
+			}
+		}
+	}
+	
+	@EventHandler(ignoreCancelled = true)
+	private void playerHurt(EntityDamageByEntityEvent event){
+		if(event.getEntity() instanceof Player){
+			Player ply = (Player)event.getEntity();
+			if(ply.getNoDamageTicks() == 0){
+				for(ItemStack i : ply.getInventory().getArmorContents()){
+					if(PCRUtils.isPeculiarItem(i)){
+						if(PeculiarStats.getStat("TIMES_PROTECTED").hasStat(i)){
+							PeculiarStats.getStat("TIMES_PROTECTED").incrementStat(ply, i, 1);
+						}
+					}
 				}
 			}
 		}
