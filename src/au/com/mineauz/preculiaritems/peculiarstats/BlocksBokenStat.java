@@ -19,4 +19,11 @@ public class BlocksBokenStat extends PeculiarStat{
 		return "Blocks Broken";
 	}
 
+	@Override
+	public boolean isCompatibleItem(String type) {
+		if(type.equals("PICKAXE") || type.equals("AXE") || type.equals("SPADE"))
+			return true;
+		return false;
+	}
+
 }

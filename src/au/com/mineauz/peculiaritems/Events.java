@@ -53,17 +53,23 @@ public class Events implements Listener{
 			
 			if(PCRUtils.matchMaterial(mod, item)){
 				ItemStack nitem = item.clone();
+				String type = item.getType().toString().split("_")[1];
 				PCRUtils.setPeculiarItem(nitem);
 				
+				int adstats = 0;
+				
 				for(PeculiarStat stat : PeculiarStats.getAllStats()){
-					if(stat.hasStat(mod)){
+					if(stat.hasStat(mod) && stat.isCompatibleItem(type) && !stat.hasStat(nitem)){
 						stat.addStat(nitem, 0);
+						adstats++;
 					}
 				}
 				
-				event.setCurrentItem(nitem);
-				event.setCancelled(true);
-				event.setCursor(null);
+				if(adstats > 0){
+					event.setCurrentItem(nitem);
+					event.setCancelled(true);
+					event.setCursor(null);
+				}
 			}
 		}
 	}

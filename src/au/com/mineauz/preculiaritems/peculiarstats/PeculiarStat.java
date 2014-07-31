@@ -17,6 +17,7 @@ public abstract class PeculiarStat {
 	public abstract String getName();
 	public abstract ChatColor getDisplayColor();
 	public abstract String getDisplayName();
+	public abstract boolean isCompatibleItem(String type);
 	
 	public List<String> getRankNames(){
 		List<String> ls = new ArrayList<String>();
