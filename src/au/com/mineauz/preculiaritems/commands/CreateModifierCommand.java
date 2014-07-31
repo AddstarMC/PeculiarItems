@@ -59,7 +59,7 @@ public class CreateModifierCommand implements ICommand {
 			}
 			ItemStack mod = new ItemStack(type);
 			if(!args[1].equalsIgnoreCase("random")){
-				String arg = args[0].toUpperCase();
+				String arg = args[1].toUpperCase();
 				if(PeculiarStats.getStat(arg) != null){
 					PCRUtils.setPeculiarModifier(mod);
 					PeculiarStats.getStat(arg).addStat(mod, 0);
