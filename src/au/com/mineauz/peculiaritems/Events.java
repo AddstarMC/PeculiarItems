@@ -79,7 +79,7 @@ public class Events implements Listener{
 	private void playerHurt(EntityDamageByEntityEvent event){
 		if(event.getEntity() instanceof Player){
 			Player ply = (Player)event.getEntity();
-			if(ply.getNoDamageTicks() == 0){
+//			if(ply.getNoDamageTicks() == 0){
 				for(ItemStack i : ply.getInventory().getArmorContents()){
 					if(PCRUtils.isPeculiarItem(i)){
 						if(PeculiarStats.getStat("TIMES_PROTECTED").hasStat(i)){
@@ -87,7 +87,7 @@ public class Events implements Listener{
 						}
 					}
 				}
-			}
+//			}
 		}
 	}
 
