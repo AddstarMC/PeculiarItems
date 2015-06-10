@@ -60,7 +60,7 @@ public class Main extends JavaPlugin{
 	}
 	
 	public static List<Integer> getRankValues(){
-		return new ArrayList<>(rankValues);
+		return new ArrayList<Integer>(rankValues);
 	}
 	
 	public static boolean isBroadcastingRankUp(){
