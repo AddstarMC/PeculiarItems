@@ -5,12 +5,11 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import au.com.mineauz.peculiaritems.Main;
-import au.com.mineauz.peculiaritems.PCRUtils;
+import au.com.mineauz.peculiaritems.PCRPlayer;
+import au.com.mineauz.peculiaritems.PeculiarObject;
 
 public abstract class PeculiarStat {
 	
@@ -36,82 +35,71 @@ public abstract class PeculiarStat {
 		return ls;
 	}
 	
-	public boolean hasStat(ItemStack item){
-		if(PCRUtils.isPeculiarItem(item) || PCRUtils.isPeculiarModifier(item)){
-			for(String lore : item.getItemMeta().getLore()){
-				if(ChatColor.stripColor(lore).matches(getDisplayName() + ": " + "[0-9]+")){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	public void incrementStat(Player player, ItemStack item, int amount){
-		if(PCRUtils.isPeculiarItem(item) || PCRUtils.isPeculiarModifier(item)){
-			ItemMeta meta = item.getItemMeta();
-			int inc = 0;
-			List<String> lore = meta.getLore();
-			for(String l : lore){
-				if(ChatColor.stripColor(l).matches(getDisplayName() + ": " + "[0-9]+")){
-					inc = Integer.valueOf(ChatColor.stripColor(l).replace(getDisplayName() + ": ", ""));
-					break;
-				}
-			}
+	public void incrementStat(PCRPlayer player, PeculiarObject item, int amount){
+		ItemMeta meta = item.getItem().getItemMeta();
+		
+		int line = getStatLine(item);
+		int inc = getStatLevel(item, line);
+		
+		inc += amount;
+		
+		addStat(item, inc, line);
+		meta = item.getItem().getItemMeta();
+		
+		List<Integer> rankValues = Main.getPlugin().getRankValues();
+		
+		if(rankValues.contains(inc) && item.isPrimaryLevelStat(this)){
+			List<String> ranks = getRankNames();
+			int ind = rankValues.indexOf(inc);
+			if(ind >= ranks.size())
+				ind = ranks.size() - 1;
 			
-			inc += amount;
-			
-			addStat(item, inc);
-			meta = item.getItemMeta();
-			
-			List<Integer> rankValues = Main.getRankValues();
-			
-			for(Integer rankv :rankValues){
-				if(rankv.intValue() == inc){
-					List<String> ranks = getRankNames();
-					int ind = rankValues.indexOf(inc);
-					if(ind >= ranks.size())
-						ind = ranks.size() - 1;
-					
-					meta.setDisplayName("" + ChatColor.RESET + ChatColor.GOLD + ranks.get(ind) + " " + PCRUtils.getItemName(item));
-					if(Main.isBroadcastingRankUp()){
-						Bukkit.getServer().broadcastMessage(ChatColor.AQUA + player.getDisplayName() + "'s " + 
-								PCRUtils.getItemName(item) + " has reached a new rank: " + getDisplayColor() + ranks.get(ind));
-					}
-					else{
-						player.sendMessage(ChatColor.AQUA + "Your " + 
-								PCRUtils.getItemName(item) + " has reached a new rank: " + getDisplayColor() + ranks.get(ind));
-					}
-					break;
-				}
-			}
-			
-			item.setItemMeta(meta);
-		}
-	}
-	
-	public void addStat(ItemStack item, int amount){
-		if(PCRUtils.isPeculiarItem(item) || PCRUtils.isPeculiarModifier(item)){
-			ItemMeta meta = item.getItemMeta();
-			int line = -1;
-			List<String> lore = meta.getLore();
-			for(String l : lore){
-				if(ChatColor.stripColor(l).matches(getDisplayName() + ": " + "[0-9]+")){
-					line = meta.getLore().indexOf(l);
-					break;
-				}
-			}
-			
-			if(line != -1){
-				lore.set(line, getDisplayColor() + getDisplayName() + ": " + amount);
+			meta.setDisplayName(ChatColor.RESET.toString() + ChatColor.GOLD + ranks.get(ind) + " " + 
+					ChatColor.RESET + ChatColor.GOLD + item.getItemName());
+			if(Main.getPlugin().isBroadcastingRankUp()){
+				Bukkit.getServer().broadcastMessage(ChatColor.AQUA + player.getDisplayName() + "'s " + 
+						item.getItemName() + " has reached a new rank: " + getDisplayColor() + ranks.get(ind));
 			}
 			else{
-				lore.add(getDisplayColor() + getDisplayName() + ": " + amount);
+				player.sendMessage(ChatColor.AQUA + "Your " + 
+						item.getItemName() + " has reached a new rank: " + getDisplayColor() + ranks.get(ind));
 			}
-			
-			meta.setLore(lore);
-			item.setItemMeta(meta);
 		}
+		
+		item.getItem().setItemMeta(meta);
 	}
-
+	
+	public void addStat(PeculiarObject item, int amount, int line){
+		ItemMeta meta = item.getItem().getItemMeta();
+		List<String> lore = meta.getLore();
+		
+		if(line != -1){
+			lore.set(line, getDisplayColor() + getDisplayName() + ": " + amount);
+		}
+		else{
+			lore.add(getDisplayColor() + getDisplayName() + ": " + amount);
+		}
+		
+		meta.setLore(lore);
+		item.getItem().setItemMeta(meta);
+	}
+	
+	public int getStatLine(PeculiarObject item){
+		int line = -1;
+		List<String> lore = item.getItem().getItemMeta().getLore();
+		for(String l : lore){
+			if(ChatColor.stripColor(l).matches(getDisplayName() + ": " + "[0-9]+")){
+				line = item.getItem().getItemMeta().getLore().indexOf(l);
+				break;
+			}
+		}
+		
+		return line;
+	}
+	
+	public int getStatLevel(PeculiarObject item, int loreLine){
+		ItemMeta meta = item.getItem().getItemMeta();
+		return Integer.valueOf(ChatColor.stripColor(
+				meta.getLore().get(loreLine)).replace(getDisplayName() + ": ", ""));
+	}
 }

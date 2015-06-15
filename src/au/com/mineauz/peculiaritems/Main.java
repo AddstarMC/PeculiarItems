@@ -8,12 +8,16 @@ import java.util.List;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import au.com.mineauz.preculiaritems.commands.CommandDispatcher;
+import au.com.mineauz.preculiaritems.peculiarstats.PeculiarStat;
+import au.com.mineauz.preculiaritems.peculiarstats.PeculiarStats;
 
 public class Main extends JavaPlugin{
 	
-	private static List<Integer> rankValues = new ArrayList<Integer>();
-	private static boolean broadcastRank = true;
+	private List<Integer> rankValues = new ArrayList<Integer>();
+	private boolean broadcastRank = true;
 	private static Main plugin;
+	private Data data;
+	private PeculiarStats stats;
 	
 	@Override
 	public void onEnable(){
@@ -49,6 +53,9 @@ public class Main extends JavaPlugin{
 		getCommand("peculiar").setExecutor(comd);
 		getCommand("peculiar").setTabCompleter(comd);
 		
+		stats = new PeculiarStats();
+		data = new Data();
+		
 		getServer().getPluginManager().registerEvents(new Events(), this);
 		getLogger().info("Peculiar Items successfully enabled!");
 	}
@@ -56,19 +63,37 @@ public class Main extends JavaPlugin{
 	@Override
 	public void onDisable(){
 		rankValues.clear();
+		stats = null;
+		data = null;
 		getLogger().info("Peculiar Items successfully disabled!");
 	}
 	
-	public static List<Integer> getRankValues(){
+	public List<Integer> getRankValues(){
 		return new ArrayList<Integer>(rankValues);
 	}
 	
-	public static boolean isBroadcastingRankUp(){
+	public boolean isBroadcastingRankUp(){
 		return broadcastRank;
 	}
 	
 	public static Main getPlugin(){
 		return plugin;
+	}
+	
+	/**
+	 * Gets all registered {@link PeculiarStat}s.
+	 * @return {@link PeculiarStats}
+	 */
+	public PeculiarStats getStats(){
+		return stats;
+	}
+	
+	/**
+	 * Gets the data used by this plugin.
+	 * @return {@link Data}
+	 */
+	public Data getData(){
+		return data;
 	}
 
 }

@@ -1,5 +1,6 @@
 package au.com.mineauz.preculiaritems.commands;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -8,8 +9,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import au.com.mineauz.peculiaritems.Main;
 import au.com.mineauz.peculiaritems.PCRUtils;
-import au.com.mineauz.preculiaritems.peculiarstats.PeculiarStats;
+import au.com.mineauz.peculiaritems.PeculiarModifier;
 
 public class CreateModifierCommand implements ICommand {
 
@@ -40,14 +42,24 @@ public class CreateModifierCommand implements ICommand {
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, String[] args) {
+		if(args.length == 1){
+			return PCRUtils.tabCompleteMatch(Arrays.asList("iron", "gold", "diamond", "nametag"), args[0]);
+		}
+		else if(args.length == 2){
+			List<String> list = Main.getPlugin().getStats().getAllStatNames();
+			list.add("random");
+			return PCRUtils.tabCompleteMatch(list, args[1]);
+		}
 		return null;
 	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, String[] args) {
-		if(args != null && args.length == 2){
+		if(args.length == 2){
+			Main plugin = Main.getPlugin();
 			Player ply = (Player)sender;
 			Material type = null;
+			
 			if(args[0].equalsIgnoreCase("iron") || args[0].equalsIgnoreCase("gold")){
 				type = Material.getMaterial(args[0].toUpperCase() + "_INGOT");
 			}
@@ -57,12 +69,13 @@ public class CreateModifierCommand implements ICommand {
 			else if(args[0].equalsIgnoreCase("nametag")){
 				type = Material.NAME_TAG;
 			}
-			ItemStack mod = new ItemStack(type);
+			
+			PeculiarModifier pm = new PeculiarModifier(new ItemStack(type));
+			
 			if(!args[1].equalsIgnoreCase("random")){
 				String arg = args[1].toUpperCase();
-				if(PeculiarStats.getStat(arg) != null){
-					PCRUtils.setPeculiarModifier(mod);
-					PeculiarStats.getStat(arg).addStat(mod, 0);
+				if(plugin.getStats().getStat(arg) != null){
+					pm.addStat(plugin.getStats().getStat(arg));
 				}
 				else{
 					ply.sendMessage(ChatColor.RED + "No stat by the name " + arg);
@@ -70,11 +83,10 @@ public class CreateModifierCommand implements ICommand {
 				}
 			}
 			else{
-				PCRUtils.setPeculiarModifier(mod);
-				PeculiarStats.getRandomStat().addStat(mod, 0);
+				pm.addStat(plugin.getStats().getRandomStat());
 			}
 			
-			ply.getInventory().addItem(mod);
+			ply.getInventory().addItem(pm.getItem());
 			return true;
 		}
 		return false;

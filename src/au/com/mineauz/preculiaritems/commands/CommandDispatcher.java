@@ -1,5 +1,6 @@
 package au.com.mineauz.preculiaritems.commands;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,25 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter{
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command,
 			String cmd, String[] args) {
+		if(args.length == 0){
+			return PCRUtils.tabCompleteMatch(new ArrayList<String>(commands.keySet()), args[0]);
+		}
+		else if(args.length >= 1){
+			String subcomd = args[0].toLowerCase();
+			ICommand icmd = getCommand(subcomd);
+			
+			if(icmd != null){
+				String[] nargs = null;
+				if(args.length - 1 > 0){
+					nargs = new String[args.length - 1];
+					for(int i = 1; i < args.length; i++)
+						nargs[i - 1] = args[i];
+				}
+				else nargs = new String[0];
+				
+				return icmd.onTabComplete(sender, nargs);
+			}
+		}
 		return null;
 	}
 
@@ -44,21 +64,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter{
 		
 		if(args.length > 0){
 			String subcomd = args[0].toLowerCase();
-			ICommand icmd = null;
-			if(commands.containsKey(subcomd))
-				icmd = commands.get(subcomd);
-			else{
-loop:			for(ICommand ic : commands.values()){
-					if(ic.getAliases() != null){
-						for(String al : ic.getAliases()){
-							if(al.equalsIgnoreCase(subcomd)){
-								icmd = ic;
-								break loop;
-							}
-						}
-					}
-				}
-			}
+			ICommand icmd = getCommand(subcomd);
 			
 			if(icmd != null){
 				String[] nargs = null;
@@ -67,6 +73,7 @@ loop:			for(ICommand ic : commands.values()){
 					for(int i = 1; i < args.length; i++)
 						nargs[i - 1] = args[i];
 				}
+				else nargs = new String[0];
 				
 				if((isConsole && !icmd.canBeConsole()) ||
 						(isCommandBlock && !icmd.canBeCommandBlock())){
@@ -92,6 +99,26 @@ loop:			for(ICommand ic : commands.values()){
 			}
 		}
 		return false;
+	}
+	
+	private ICommand getCommand(String name){
+		ICommand icmd = null;
+		if(commands.containsKey(name))
+			icmd = commands.get(name);
+		else{
+loop:			for(ICommand ic : commands.values()){
+				if(ic.getAliases() != null){
+					for(String al : ic.getAliases()){
+						if(al.equalsIgnoreCase(name)){
+							icmd = ic;
+							break loop;
+						}
+					}
+				}
+			}
+		}
+		
+		return icmd;
 	}
 
 }

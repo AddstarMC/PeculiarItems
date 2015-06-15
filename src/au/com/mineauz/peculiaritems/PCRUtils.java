@@ -6,7 +6,6 @@ import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 public class PCRUtils {
 	
@@ -73,42 +72,6 @@ public class PCRUtils {
 		return false;
 	}
 	
-	public static void setPeculiarItem(ItemStack item){
-		if(item == null) return;
-		if(isPeculiarItem(item) || isPeculiarModifier(item)) return;
-		ItemMeta meta = item.getItemMeta();
-		List<String> lore;
-		if(meta.getLore() == null)
-			lore = new ArrayList<String>();
-		else
-			lore = meta.getLore();
-		
-		meta.setDisplayName("" + ChatColor.RESET + ChatColor.GOLD + "Peculiar " + getItemName(item));
-		lore.add(0, ChatColor.GOLD + "---Peculiar Item---");
-		meta.setLore(lore);
-		item.setItemMeta(meta);
-	}
-	
-	public static void setPeculiarModifier(ItemStack item){
-		if(item == null) return;
-		if(isPeculiarItem(item) || isPeculiarModifier(item)) return;
-		ItemMeta meta = item.getItemMeta();
-		List<String> lore;
-		if(meta.getLore() == null)
-			lore = new ArrayList<String>();
-		else
-			lore = meta.getLore();
-		
-		meta.setDisplayName("" + ChatColor.RESET + ChatColor.GOLD + "Peculiar " + getItemName(item));
-		lore.add(0, ChatColor.GOLD + "---Peculiar Modifier---");
-		lore.add(1, ChatColor.AQUA + "Right click an item");
-		lore.add(2, ChatColor.AQUA + "in your inventory with");
-		lore.add(3, ChatColor.AQUA + "this to apply the");
-		lore.add(4, ChatColor.AQUA + "peculiar statistic.");
-		meta.setLore(lore);
-		item.setItemMeta(meta);
-	}
-	
 	public static String capitalize(String toCapitalize){
 		String val = toCapitalize.toLowerCase();
 		String[] spl = val.split(" ");
@@ -126,5 +89,24 @@ public class PCRUtils {
 	
 	public static String getItemName(ItemStack item){
 		return capitalize(item.getType().toString().replace("_", " "));
+	}
+	
+	/**
+	 * Automatically assembles a tab complete array for the use in commands, matching a given string.
+	 * @param orig The full list to match the string to
+	 * @param match The string used to match
+	 * @return A list of possible tab completions
+	 */
+	public static List<String> tabCompleteMatch(List<String> orig, String match){
+		if(match.equals(""))
+			return orig;
+		else{
+			List<String> ret = new ArrayList<String>(orig.size());
+			for(String m : orig){
+				if(m.toLowerCase().startsWith(match.toLowerCase()))
+					ret.add(m);
+			}
+			return ret;
+		}
 	}
 }

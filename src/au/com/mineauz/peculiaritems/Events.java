@@ -9,37 +9,57 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import au.com.mineauz.preculiaritems.peculiarstats.PeculiarStat;
-import au.com.mineauz.preculiaritems.peculiarstats.PeculiarStats;
 
 public class Events implements Listener{
 	
-	@EventHandler(ignoreCancelled = true)
-	private void blockBreak(BlockBreakEvent event){
-		Player ply = event.getPlayer();
-		
-		if(PCRUtils.isPeculiarItem(ply.getItemInHand())){
-			if(PeculiarStats.getStat("BLOCKS_BROKEN").hasStat(ply.getItemInHand())){
-				PeculiarStats.getStat("BLOCKS_BROKEN").incrementStat(ply, ply.getItemInHand(), 1);
-			}
-		}
+	private Main plugin = Main.getPlugin();
+	private Data data = plugin.getData();
+	
+	@EventHandler
+	private void playerLogin(PlayerJoinEvent event){
+		//Add player when they join
+		plugin.getData().addPlayer(event.getPlayer());
 	}
 	
-	@EventHandler(ignoreCancelled = true)
-	private void entityKill(EntityDeathEvent event){
-		if(event.getEntity() instanceof Monster){
-			LivingEntity ent = event.getEntity();
-			if(ent.getKiller() != null){
-				Player ply = ent.getKiller();
-				if(PCRUtils.isPeculiarItem(ply.getItemInHand())){
-					if(PeculiarStats.getStat("MONSTERS_KILLED").hasStat(ply.getItemInHand())){
-						PeculiarStats.getStat("MONSTERS_KILLED").incrementStat(ply, ply.getItemInHand(), 1);
-					}
-				}
-			}
+	@EventHandler
+	private void playerQuit(PlayerQuitEvent event){
+		//Remove player when they quit
+		plugin.getData().removePlayer(event.getPlayer());
+	}
+	
+	@EventHandler
+	private void itemchange(PlayerItemHeldEvent event){
+		PCRPlayer player = plugin.getData().getPlayer(event.getPlayer());
+		if(player == null) return;
+		
+		//Check if new active item is peculiar
+		if(PCRUtils.isPeculiarItem(player.getItem(event.getNewSlot()))){
+			player.setActiveItem(new PeculiarItem(player.getItem(event.getNewSlot())));
 		}
+		else
+			player.setActiveItem(null);
+	}
+	
+	@EventHandler
+	private void inventoryClose(InventoryCloseEvent event){
+		PCRPlayer player = plugin.getData().getPlayer(event.getPlayer().getUniqueId());
+		if(player == null) return;
+		
+		//Check for peculiar armor
+		player.updatePeculiarArmor();
+		
+		//Check active item is peculiar
+		if(PCRUtils.isPeculiarItem(player.getItemInHand()))
+			player.setActiveItem(new PeculiarItem(player.getItemInHand()));
+		else
+			player.setActiveItem(null);
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -50,27 +70,43 @@ public class Events implements Listener{
 				event.getCurrentItem() != null){
 			
 			ItemStack item = event.getCurrentItem();
-			ItemStack mod = event.getCursor();
+			PeculiarModifier mod = new PeculiarModifier(event.getCursor());
 			
-			if(PCRUtils.matchMaterial(mod, item)){
+			if(PCRUtils.matchMaterial(mod.getItem(), item)){
 				ItemStack nitem = item.clone();
 				String type = item.getType().toString().split("_")[1];
-				PCRUtils.setPeculiarItem(nitem);
+				PeculiarItem pitem = new PeculiarItem(nitem);
 				
-				int adstats = 0;
-				
-				for(PeculiarStat stat : PeculiarStats.getAllStats()){
-					if(stat.hasStat(mod) && stat.isCompatibleItem(type) && !stat.hasStat(nitem)){
-						stat.addStat(nitem, 0);
-						adstats++;
+				for(PeculiarStat stat : mod.getAllStats()){
+					if(!pitem.hasStat(stat.getName()) && stat.isCompatibleItem(type)){
+						pitem.addStat(stat);
 					}
 				}
 				
-				if(adstats > 0){
-					event.setCurrentItem(nitem);
-					event.setCancelled(true);
-					event.setCursor(null);
-				}
+				event.setCurrentItem(nitem);
+				event.setCancelled(true);
+				event.setCursor(null);
+			}
+		}
+	}
+	
+	@EventHandler(ignoreCancelled = true)
+	private void blockBreak(BlockBreakEvent event){
+		PCRPlayer ply = data.getPlayer(event.getPlayer());
+		if(ply == null) return;
+		
+		ply.incrementActiveItemStat("blocks_broken", 1);
+	}
+	
+	@EventHandler(ignoreCancelled = true)
+	private void entityKill(EntityDeathEvent event){
+		if(event.getEntity() instanceof Monster){
+			LivingEntity ent = event.getEntity();
+			if(ent.getKiller() != null){
+				PCRPlayer ply = data.getPlayer(ent.getKiller());
+				if(ply == null) return;
+				
+				ply.incrementActiveItemStat("monsters_killed", 1);
 			}
 		}
 	}
@@ -78,16 +114,9 @@ public class Events implements Listener{
 	@EventHandler(ignoreCancelled = true)
 	private void playerHurt(EntityDamageByEntityEvent event){
 		if(event.getEntity() instanceof Player){
-			Player ply = (Player)event.getEntity();
-//			if(ply.getNoDamageTicks() == 0){
-				for(ItemStack i : ply.getInventory().getArmorContents()){
-					if(PCRUtils.isPeculiarItem(i)){
-						if(PeculiarStats.getStat("TIMES_PROTECTED").hasStat(i)){
-							PeculiarStats.getStat("TIMES_PROTECTED").incrementStat(ply, i, 1);
-						}
-					}
-				}
-//			}
+			PCRPlayer ply = data.getPlayer((Player)event.getEntity());
+			
+			ply.incrementActiveArmorStat("times_protected", 1);
 		}
 	}
 
