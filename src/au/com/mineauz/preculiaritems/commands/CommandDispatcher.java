@@ -30,10 +30,10 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter{
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command,
 			String cmd, String[] args) {
-		if(args.length == 0){
+		if(args.length == 1){
 			return PCRUtils.tabCompleteMatch(new ArrayList<String>(commands.keySet()), args[0]);
 		}
-		else if(args.length >= 1){
+		else if(args.length > 1){
 			String subcomd = args[0].toLowerCase();
 			ICommand icmd = getCommand(subcomd);
 			
