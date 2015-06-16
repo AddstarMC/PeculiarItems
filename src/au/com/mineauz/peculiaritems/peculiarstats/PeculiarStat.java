@@ -4,14 +4,17 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 
 import au.com.mineauz.peculiaritems.Data;
 import au.com.mineauz.peculiaritems.Main;
 import au.com.mineauz.peculiaritems.PCRPlayer;
 import au.com.mineauz.peculiaritems.PeculiarObject;
 
-public abstract class PeculiarStat {
+public abstract class PeculiarStat implements Listener{
 	
 	public abstract String getName();
 	public abstract ChatColor getDisplayColor();
@@ -81,5 +84,13 @@ public abstract class PeculiarStat {
 		ItemMeta meta = item.getItem().getItemMeta();
 		return Integer.valueOf(ChatColor.stripColor(
 				meta.getLore().get(loreLine)).replace(getDisplayName() + ": ", ""));
+	}
+	
+	public void registerEvents(Plugin plugin) {
+		plugin.getServer().getPluginManager().registerEvents(this, plugin);
+	}
+	
+	public void unregisterEvents() {
+		HandlerList.unregisterAll(this);
 	}
 }

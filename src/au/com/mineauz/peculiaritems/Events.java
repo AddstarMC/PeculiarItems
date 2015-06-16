@@ -1,13 +1,7 @@
 package au.com.mineauz.peculiaritems;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -20,7 +14,6 @@ import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStat;
 public class Events implements Listener{
 	
 	private Main plugin = Main.getPlugin();
-	private Data data = plugin.getData();
 	
 	@EventHandler
 	private void playerLogin(PlayerJoinEvent event){
@@ -87,36 +80,6 @@ public class Events implements Listener{
 				event.setCancelled(true);
 				event.setCursor(null);
 			}
-		}
-	}
-	
-	@EventHandler(ignoreCancelled = true)
-	private void blockBreak(BlockBreakEvent event){
-		PCRPlayer ply = data.getPlayer(event.getPlayer());
-		if(ply == null) return;
-		
-		ply.incrementActiveItemStat("blocks_broken", 1);
-	}
-	
-	@EventHandler(ignoreCancelled = true)
-	private void entityKill(EntityDeathEvent event){
-		if(event.getEntity() instanceof Monster){
-			LivingEntity ent = event.getEntity();
-			if(ent.getKiller() != null){
-				PCRPlayer ply = data.getPlayer(ent.getKiller());
-				if(ply == null) return;
-				
-				ply.incrementActiveItemStat("monsters_killed", 1);
-			}
-		}
-	}
-	
-	@EventHandler(ignoreCancelled = true)
-	private void playerHurt(EntityDamageByEntityEvent event){
-		if(event.getEntity() instanceof Player){
-			PCRPlayer ply = data.getPlayer((Player)event.getEntity());
-			
-			ply.incrementActiveArmorStat("times_protected", 1);
 		}
 	}
 
