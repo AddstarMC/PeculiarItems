@@ -1,4 +1,4 @@
-package au.com.mineauz.preculiaritems.peculiarstats;
+package au.com.mineauz.peculiaritems.peculiarstats;
 
 import org.bukkit.ChatColor;
 

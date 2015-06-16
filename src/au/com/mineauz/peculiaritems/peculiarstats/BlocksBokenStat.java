@@ -1,27 +1,27 @@
-package au.com.mineauz.preculiaritems.peculiarstats;
+package au.com.mineauz.peculiaritems.peculiarstats;
 
 import org.bukkit.ChatColor;
 
-public class MonstersKilledStat extends PeculiarStat{
+public class BlocksBokenStat extends PeculiarStat{
 
 	@Override
 	public String getName() {
-		return "MONSTERS_KILLED";
+		return "BLOCKS_BROKEN";
 	}
 
 	@Override
 	public ChatColor getDisplayColor() {
-		return ChatColor.RED;
+		return ChatColor.LIGHT_PURPLE;
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "Monsters Killed";
+		return "Blocks Broken";
 	}
 
 	@Override
 	public boolean isCompatibleItem(String type) {
-		if(type.equals("SWORD") || type.equals("AXE"))
+		if(type.equals("PICKAXE") || type.equals("AXE") || type.equals("SPADE"))
 			return true;
 		return false;
 	}

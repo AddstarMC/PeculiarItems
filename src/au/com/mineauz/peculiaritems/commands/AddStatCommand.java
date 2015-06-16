@@ -1,4 +1,4 @@
-package au.com.mineauz.preculiaritems.commands;
+package au.com.mineauz.peculiaritems.commands;
 
 import java.util.List;
 
