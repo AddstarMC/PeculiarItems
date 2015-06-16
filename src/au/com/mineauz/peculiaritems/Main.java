@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-import au.com.mineauz.preculiaritems.commands.CommandDispatcher;
-import au.com.mineauz.preculiaritems.peculiarstats.PeculiarStat;
-import au.com.mineauz.preculiaritems.peculiarstats.PeculiarStats;
+import au.com.mineauz.peculiaritems.commands.CommandDispatcher;
+import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStat;
+import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStats;
 
 public class Main extends JavaPlugin{
 	
