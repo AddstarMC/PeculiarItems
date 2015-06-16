@@ -11,6 +11,7 @@ import au.com.mineauz.peculiaritems.exceptions.UnknownPlayerException;
 
 public class Data {
 	private Map<UUID, PCRPlayer> players = new HashMap<UUID, PCRPlayer>();
+	private Map<Integer, String> ranks = new HashMap<Integer, String>();
 	
 	/**
 	 * Adds a {@link PCRPlayer} for this plugin. This is automated by player join event.
@@ -56,5 +57,21 @@ public class Data {
 		if(players.containsKey(player))
 			return players.get(player);
 		return null;
+	}
+	
+	public void setRank(int level, String rank){
+		ranks.put(level, rank);
+	}
+	
+	public String getRank(int level){
+		return ranks.get(level);
+	}
+	
+	public void clearRanks(){
+		ranks.clear();
+	}
+	
+	public boolean hasRank(int level){
+		return ranks.containsKey(level);
 	}
 }

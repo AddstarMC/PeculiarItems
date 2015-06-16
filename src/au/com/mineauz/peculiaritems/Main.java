@@ -1,9 +1,6 @@
 package au.com.mineauz.peculiaritems;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -13,7 +10,6 @@ import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStats;
 
 public class Main extends JavaPlugin{
 	
-	private List<Integer> rankValues = new ArrayList<Integer>();
 	private boolean broadcastRank = true;
 	private static Main plugin;
 	private Data data;
@@ -35,18 +31,19 @@ public class Main extends JavaPlugin{
 			e.printStackTrace();
 		}
 		
-		for(String rank : getConfig().getStringList("rankNumbers")){
+		data = new Data();
+		
+		for(String rank : getConfig().getConfigurationSection("ranks").getKeys(false)){
 			if(!rank.matches("[0-9]+")){
-				rankValues.clear();
-				for(String rank2 : getConfig().getDefaults().getStringList("rankNumbers")){
-					rankValues.add(Integer.valueOf(rank2));
+				data.clearRanks();
+				for(String rank2 : getConfig().getConfigurationSection("ranks").getKeys(false)){
+					data.setRank(Integer.parseInt(rank2), getConfig().getString("ranks." + rank2));
 				}
 				break;
 			}
 			else
-				rankValues.add(Integer.valueOf(rank));
+				data.setRank(Integer.parseInt(rank), getConfig().getString("ranks." + rank));
 		}
-		Collections.sort(rankValues);
 		broadcastRank = getConfig().getBoolean("broadcastRankIncrease");
 
 		CommandDispatcher comd = new CommandDispatcher();
@@ -54,7 +51,6 @@ public class Main extends JavaPlugin{
 		getCommand("peculiar").setTabCompleter(comd);
 		
 		stats = new PeculiarStats();
-		data = new Data();
 		
 		getServer().getPluginManager().registerEvents(new Events(), this);
 		getLogger().info("Peculiar Items successfully enabled!");
@@ -62,14 +58,9 @@ public class Main extends JavaPlugin{
 	
 	@Override
 	public void onDisable(){
-		rankValues.clear();
 		stats = null;
 		data = null;
 		getLogger().info("Peculiar Items successfully disabled!");
-	}
-	
-	public List<Integer> getRankValues(){
-		return new ArrayList<Integer>(rankValues);
 	}
 	
 	public boolean isBroadcastingRankUp(){

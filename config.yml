@@ -1,14 +1,14 @@
-rankNumbers:
-- 10
-- 25
-- 50
-- 100
-- 200
-- 500
-- 1000
-- 1250
-- 1500
-- 1750
-- 2000
-- 2500
+ranks:
+  "10": Very Peculiar
+  "25": Strangely Peculiar
+  "50": Mildly Interesting
+  "100": Pretty Cool
+  "200": Awesome
+  "500": Amazing
+  "1000": Shiny
+  "1250": Sparkling
+  "1500": Unbelevable
+  "1750": Super
+  "2000": Ultimate
+  "2500": Herobrine's Own
 broadcastRankIncrease: true
