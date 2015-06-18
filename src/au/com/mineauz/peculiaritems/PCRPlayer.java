@@ -3,6 +3,8 @@ package au.com.mineauz.peculiaritems;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStat;
+
 public class PCRPlayer {
 	
 	private PeculiarItem activeItem = null;
@@ -69,10 +71,13 @@ public class PCRPlayer {
 	 * Increments the active {@link PeculiarItem} stat by a specific amount.
 	 * @param stat The stat to increment.
 	 * @param amount The amount to increment the stat by.
+	 * @param special The substat that can be incremented.
 	 */
-	public void incrementActiveItemStat(String stat, int amount){
+	public void incrementActiveItemStat(String stat, int amount, String special){
 		if(hasActiveItem() && getActiveItem().hasStat(stat)){
-			getActiveItem().getStat(stat).incrementStat(this, getActiveItem(), amount);
+			PeculiarStat pstat = getActiveItem().getStat(stat);
+			pstat.incrementStat(this, getActiveItem(), amount);
+			pstat.callSubStat(activeItem, amount, special);
 		}
 	}
 	
@@ -124,11 +129,15 @@ public class PCRPlayer {
 	 * Increments all armor peices with the specific stat by a specific amount.
 	 * @param stat The stat to increment.
 	 * @param amount The amount to increment the stat by.
+	 * @param special The substat that can be incremented.
 	 */
-	public void incrementActiveArmorStat(String stat, int amount){
+	public void incrementActiveArmorStat(String stat, int amount, String special){
 		for(ArmorType type : ArmorType.values()){
-			if(hasActiveArmor(type) && getActiveArmor(type).hasStat(stat))
-				getActiveArmor(type).getStat(stat).incrementStat(this, getActiveArmor(type), amount);
+			if(hasActiveArmor(type) && getActiveArmor(type).hasStat(stat)){
+				PeculiarStat pstat = getActiveArmor(type).getStat(stat);
+				pstat.incrementStat(this, getActiveArmor(type), amount);
+				pstat.callSubStat(getActiveArmor(type), amount, special);
+			}
 		}
 	}
 	

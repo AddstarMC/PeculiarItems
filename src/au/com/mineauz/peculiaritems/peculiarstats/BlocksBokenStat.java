@@ -7,6 +7,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 
 import au.com.mineauz.peculiaritems.Main;
 import au.com.mineauz.peculiaritems.PCRPlayer;
+import au.com.mineauz.peculiaritems.PCRUtils;
 
 public class BlocksBokenStat extends PeculiarStat implements Listener{
 
@@ -37,7 +38,8 @@ public class BlocksBokenStat extends PeculiarStat implements Listener{
 		PCRPlayer ply = Main.getPlugin().getData().getPlayer(event.getPlayer());
 		if(ply == null) return;
 		
-		ply.incrementActiveItemStat(getName(), 1);
+		ply.incrementActiveItemStat(getName(), 1, 
+				PCRUtils.capitalize(event.getBlock().getType().toString().replace("_", " ")));
 	}
 
 }

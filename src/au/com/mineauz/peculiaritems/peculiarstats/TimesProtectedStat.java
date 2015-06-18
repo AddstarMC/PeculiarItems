@@ -8,6 +8,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import au.com.mineauz.peculiaritems.Main;
 import au.com.mineauz.peculiaritems.PCRPlayer;
+import au.com.mineauz.peculiaritems.PCRUtils;
 
 public class TimesProtectedStat extends PeculiarStat implements Listener{
 
@@ -39,7 +40,8 @@ public class TimesProtectedStat extends PeculiarStat implements Listener{
 			PCRPlayer ply = Main.getPlugin().getData().getPlayer((Player)event.getEntity());
 			if(ply == null) return;
 			
-			ply.incrementActiveArmorStat(getName(), 1);
+			ply.incrementActiveArmorStat(getName(), 1, 
+					PCRUtils.capitalize(event.getDamager().getType().toString().replace("_", " ")));
 		}
 	}
 

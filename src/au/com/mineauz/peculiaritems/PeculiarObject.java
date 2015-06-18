@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStat;
+import au.com.mineauz.peculiaritems.peculiarstats.PeculiarSubStat;
 
 public class PeculiarObject {
 	private ItemStack item;
@@ -91,6 +92,35 @@ public class PeculiarObject {
 		}
 		
 		return stats;
+	}
+	
+	/**
+	 * Adds a sub statistic to a particular statistic.
+	 * @param stat The statistic to add this stat to.
+	 * @param special The name of this sub statistic.
+	 */
+	public void addSubStat(PeculiarStat stat, String special){
+		PeculiarSubStat.addSubStat(this, 0, PeculiarSubStat.getSubStatLine(this, special), stat, special);
+	}
+	
+	/**
+	 * Gets all the sub statistics of a specific statistic.
+	 * @param stat The stat to get any sub statistics from.
+	 * @return A list containing all the sub statistic names or an empty list if there are none.
+	 */
+	public List<String> getAllSubStats(PeculiarStat stat){
+		List<String> sub = new ArrayList<String>();
+		if(hasStat(stat.getName())){
+			int line = stat.getStatLine(this);
+			List<String> lore = getItem().getItemMeta().getLore();
+			for(int i = line + 1; i < lore.size(); i++){
+				if(lore.get(i).startsWith("- "))
+					sub.add(ChatColor.stripColor(lore.get(i)).replaceAll("(- )|(: [0-9]+)", ""));
+				else
+					break;
+			}
+		}
+		return sub;
 	}
 	
 	/**

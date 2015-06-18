@@ -1,5 +1,7 @@
 package au.com.mineauz.peculiaritems;
 
+import java.util.List;
+
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -73,6 +75,10 @@ public class Events implements Listener{
 				for(PeculiarStat stat : mod.getAllStats()){
 					if(!pitem.hasStat(stat.getName()) && stat.isCompatibleItem(type)){
 						pitem.addStat(stat);
+						List<String> sstats = mod.getAllSubStats(stat);
+						for(String sstat : sstats){
+							pitem.addSubStat(stat, sstat);
+						}
 					}
 				}
 				

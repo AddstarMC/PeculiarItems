@@ -86,11 +86,15 @@ public abstract class PeculiarStat implements Listener{
 				meta.getLore().get(loreLine)).replace(getDisplayName() + ": ", ""));
 	}
 	
-	public void registerEvents(Plugin plugin) {
+	public final void registerEvents(Plugin plugin) {
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 	
-	public void unregisterEvents() {
+	public final void unregisterEvents() {
 		HandlerList.unregisterAll(this);
+	}
+	
+	public final void callSubStat(PeculiarObject item, int amount, String special){
+		PeculiarSubStat.incrementSubStat(item, this, amount, special);
 	}
 }
