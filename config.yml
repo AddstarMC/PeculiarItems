@@ -1,14 +1,41 @@
 ranks:
-  "10": Very Peculiar
-  "25": Strangely Peculiar
-  "50": Mildly Interesting
-  "100": Pretty Cool
-  "200": Awesome
-  "500": Amazing
-  "1000": Shiny
-  "1250": Sparkling
-  "1500": Unbelevable
-  "1750": Super
-  "2000": Ultimate
-  "2500": Herobrine's Own
+  iron:
+    "10": Very Peculiar
+    "25": Strangely Peculiar
+    "50": Mildly Interesting
+    "100": Pretty Cool
+    "200": Awesome
+    "500": Amazing
+    "1000": Shiny
+    "1250": Sparkling
+    "1500": Unbelevable
+    "1750": Super
+    "2000": Ultimate
+    "2500": Herobrine's Own
+  gold:
+    "10": Very Peculiar
+    "25": Strangely Peculiar
+    "50": Mildly Interesting
+    "100": Pretty Cool
+    "200": Awesome
+    "500": Amazing
+    "1000": Shiny
+    "1250": Sparkling
+    "1500": Unbelevable
+    "1750": Super
+    "2000": Ultimate
+    "2500": Herobrine's Own
+  diamond:
+    "10": Very Peculiar
+    "25": Strangely Peculiar
+    "50": Mildly Interesting
+    "100": Pretty Cool
+    "200": Awesome
+    "500": Amazing
+    "1000": Shiny
+    "1250": Sparkling
+    "1500": Unbelevable
+    "1750": Super
+    "2000": Ultimate
+    "2500": Herobrine's Own
 broadcastRankIncrease: true
