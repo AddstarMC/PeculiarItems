@@ -1,15 +1,16 @@
 package au.com.mineauz.peculiaritems;
 
-import java.util.List;
+import java.util.Set;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
+import com.google.common.collect.Sets;
 
 import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStat;
 
@@ -59,30 +60,45 @@ public class Events implements Listener{
 	
 	@SuppressWarnings("deprecation")
 	@EventHandler(ignoreCancelled = true)
-	private void invClick(InventoryClickEvent event){
-		if(event.getClick().isRightClick() && 
-				PCRUtils.isPeculiarModifier(event.getCursor()) &&
-				event.getCurrentItem() != null){
-			
-			ItemStack item = event.getCurrentItem();
-			PeculiarModifier mod = new PeculiarModifier(event.getCursor());
-			
-			if(PCRUtils.matchMaterial(mod.getItem(), item)){
-				ItemStack nitem = item.clone();
-				String type = item.getType().toString().split("_")[1];
-				PeculiarItem pitem = new PeculiarItem(nitem);
-				
-				for(PeculiarStat stat : mod.getAllStats()){
-					if(!pitem.hasStat(stat) && stat.isCompatibleItem(type)){
-						pitem.addStat(stat);
-					}
-				}
-				
-				event.setCurrentItem(nitem);
-				event.setCancelled(true);
-				event.setCursor(null);
+	private void invClick(InventoryClickEvent event) {
+		if (event.getClick() != ClickType.RIGHT || event.getCurrentItem() == null || event.getCursor() == null) {
+			return;
+		}
+		
+		PeculiarModifier modifier = new PeculiarModifier(event.getCursor());
+		PeculiarItem item = new PeculiarItem(event.getCurrentItem());
+		
+		if (!modifier.isPeculiar()) {
+			return;
+		}
+		
+		
+		// TODO: Item type check. ie. gold for gold items, diamond for diamond items, etc.
+		
+		Set<PeculiarStat> toRemove = Sets.newHashSet();
+		
+		// Add the stats to the item
+		for (PeculiarStat stat : modifier.getStats()) {
+			if (!item.hasStat(stat) && stat.isCompatibleItem(item.getItemStack())) {
+				item.addStat(stat);
+				toRemove.add(stat);
 			}
 		}
+		
+		// Remove the added stats from the modifier
+		for (PeculiarStat stat : toRemove) {
+			modifier.removeStat(stat);
+		}
+		
+		if (modifier.getStats().isEmpty()) {
+			// Remove it
+			event.setCursor(null);
+		} else {
+			event.setCursor(modifier.getItemStack());
+		}
+		
+		event.setCurrentItem(item.getItemStack());
+		event.setCancelled(true);
 	}
 
 }

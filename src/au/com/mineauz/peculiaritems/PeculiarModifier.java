@@ -1,5 +1,6 @@
 package au.com.mineauz.peculiaritems;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -67,6 +68,10 @@ public class PeculiarModifier {
 		
 		update();
 		saveStats();
+	}
+	
+	public Set<PeculiarStat> getStats() {
+		return Collections.unmodifiableSet(stats);
 	}
 	
 	public void update() {

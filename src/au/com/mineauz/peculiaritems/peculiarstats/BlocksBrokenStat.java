@@ -10,6 +10,8 @@ import org.bukkit.material.MaterialData;
 import com.google.common.collect.Maps;
 
 import au.com.addstar.monolith.StringTranslator;
+import au.com.mineauz.peculiaritems.PCRUtils;
+import au.com.mineauz.peculiaritems.PCRUtils.ToolType;
 
 public class BlocksBrokenStat extends PeculiarStat implements SubStatable<MaterialData> {
 	private Map<MaterialData, MaterialSubStat> materialStats = Maps.newHashMap();
@@ -63,10 +65,10 @@ public class BlocksBrokenStat extends PeculiarStat implements SubStatable<Materi
 	}
 
 	@Override
-	public boolean isCompatibleItem(String type) {
-		if(type.equals("PICKAXE") || type.equals("AXE") || type.equals("SPADE"))
-			return true;
-		return false;
+	public boolean isCompatibleItem(ItemStack item) {
+		ToolType type = PCRUtils.getType(item);
+		
+		return (type == ToolType.Pickaxe || type == ToolType.Axe || type == ToolType.Shovel);
 	}
 	
 	private class MaterialSubStat extends PeculiarSubStat {

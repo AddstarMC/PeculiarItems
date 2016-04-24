@@ -5,7 +5,12 @@ import java.util.Map;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemStack;
+
 import com.google.common.collect.Maps;
+
+import au.com.mineauz.peculiaritems.PCRUtils;
+import au.com.mineauz.peculiaritems.PCRUtils.ToolType;
 
 public class MonstersKilledStat extends PeculiarStat implements SubStatable<EntityType> {
 	private final Map<EntityType, MonsterTypeSubStat> substats = Maps.newHashMap();
@@ -47,10 +52,10 @@ public class MonstersKilledStat extends PeculiarStat implements SubStatable<Enti
 	}
 
 	@Override
-	public boolean isCompatibleItem(String type) {
-		if(type.equals("SWORD") || type.equals("AXE"))
-			return true;
-		return false;
+	public boolean isCompatibleItem(ItemStack item) {
+		ToolType type = PCRUtils.getType(item);
+		
+		return (type == ToolType.Sword || type == ToolType.Axe);
 	}
 	
 	private class MonsterTypeSubStat extends PeculiarSubStat {

@@ -5,8 +5,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.ItemStack;
 
 import au.com.mineauz.peculiaritems.PeculiarItemsPlugin;
+import au.com.mineauz.peculiaritems.PCRUtils.ArmorType;
 import au.com.mineauz.peculiaritems.PCRPlayer;
 import au.com.mineauz.peculiaritems.PCRUtils;
 
@@ -28,10 +30,10 @@ public class TimesProtectedStat extends PeculiarStat implements Listener{
 	}
 
 	@Override
-	public boolean isCompatibleItem(String type) {
-		if(type.equals("LEGGINGS") || type.equals("HELMET") || type.equals("CHESTPLATE") || type.equals("BOOTS"))
-			return true;
-		return false;
+	public boolean isCompatibleItem(ItemStack item) {
+		ArmorType type = PCRUtils.getArmorType(item);
+		
+		return (type == ArmorType.Helmet || type == ArmorType.Chestplate || type == ArmorType.Leggings || type == ArmorType.Boots);
 	}
 	
 	@EventHandler(ignoreCancelled = true)

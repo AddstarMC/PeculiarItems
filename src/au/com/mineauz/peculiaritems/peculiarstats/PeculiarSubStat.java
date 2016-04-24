@@ -1,6 +1,7 @@
 package au.com.mineauz.peculiaritems.peculiarstats;
 
 import org.bukkit.ChatColor;
+import org.bukkit.inventory.ItemStack;
 
 public abstract class PeculiarSubStat extends PeculiarStat {
 	private final PeculiarStat parent;
@@ -19,8 +20,8 @@ public abstract class PeculiarSubStat extends PeculiarStat {
 	}
 	
 	@Override
-	public final boolean isCompatibleItem(String type) {
-		return parent.isCompatibleItem(type);
+	public final boolean isCompatibleItem(ItemStack item) {
+		return parent.isCompatibleItem(item);
 	}
 	
 	public abstract String getSubName();

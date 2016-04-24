@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import com.comphenix.attributes.Attributes;
@@ -142,5 +143,108 @@ public class PCRUtils {
 			
 			storage.add(statAttribute);
 		}
+	}
+	
+	public static ToolType getType(ItemStack item) {
+		switch (item.getType()) {
+		case WOOD_PICKAXE:
+		case STONE_PICKAXE:
+		case IRON_PICKAXE:
+		case GOLD_PICKAXE:
+		case DIAMOND_PICKAXE:
+			return ToolType.Pickaxe;
+		
+		case WOOD_AXE:
+		case STONE_AXE:
+		case IRON_AXE:
+		case GOLD_AXE:
+		case DIAMOND_AXE:
+			return ToolType.Axe;
+			
+		case WOOD_HOE:
+		case STONE_HOE:
+		case IRON_HOE:
+		case GOLD_HOE:
+		case DIAMOND_HOE:
+			return ToolType.Hoe;
+			
+		case WOOD_SPADE:
+		case STONE_SPADE:
+		case IRON_SPADE:
+		case GOLD_SPADE:
+		case DIAMOND_SPADE:
+			return ToolType.Shovel;
+			
+		case WOOD_SWORD:
+		case STONE_SWORD:
+		case IRON_SWORD:
+		case GOLD_SWORD:
+		case DIAMOND_SWORD:
+			return ToolType.Sword;
+			
+		case SHEARS:
+			return ToolType.Shears;
+			
+		default:
+			return ToolType.None;
+		}
+	}
+	
+	public enum ToolType {
+		None,
+		Pickaxe,
+		Axe,
+		Hoe,
+		Shovel,
+		Sword,
+		Shears
+	}
+	
+	public static ArmorType getArmorType(ItemStack item) {
+		switch (item.getType()) {
+		case LEATHER_HELMET:
+		case IRON_HELMET:
+		case CHAINMAIL_HELMET:
+		case GOLD_HELMET:
+		case DIAMOND_HELMET:
+			return ArmorType.Helmet;
+			
+		case LEATHER_CHESTPLATE:
+		case IRON_CHESTPLATE:
+		case CHAINMAIL_CHESTPLATE:
+		case GOLD_CHESTPLATE:
+		case DIAMOND_CHESTPLATE:
+			return ArmorType.Chestplate;
+			
+		case LEATHER_LEGGINGS:
+		case IRON_LEGGINGS:
+		case CHAINMAIL_LEGGINGS:
+		case GOLD_LEGGINGS:
+		case DIAMOND_LEGGINGS:
+			return ArmorType.Leggings;
+			
+		case LEATHER_BOOTS:
+		case IRON_BOOTS:
+		case CHAINMAIL_BOOTS:
+		case GOLD_BOOTS:default:
+			return ArmorType.None;
+		case DIAMOND_BOOTS:
+			return ArmorType.Boots;
+			
+		case SHIELD:
+			return ArmorType.Shield;
+			
+		default:
+			return ArmorType.None;
+		}
+	}
+	
+	public enum ArmorType {
+		None,
+		Helmet,
+		Chestplate,
+		Leggings,
+		Boots,
+		Shield
 	}
 }
