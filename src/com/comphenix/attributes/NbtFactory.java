@@ -317,7 +317,7 @@ public class NbtFactory {
                 COMPOUND_CLASS = getMethod(0, Modifier.STATIC, offlinePlayer, "getData").getReturnType();
                 BASE_CLASS = COMPOUND_CLASS.getSuperclass();
                 NBT_GET_TYPE = getMethod(0, Modifier.STATIC, BASE_CLASS, "getTypeId");
-                NBT_CREATE_TAG = getMethod(Modifier.STATIC, 0, BASE_CLASS, "createTag", byte.class, String.class);
+                NBT_CREATE_TAG = getMethod(Modifier.STATIC, 0, BASE_CLASS, "createTag", byte.class);
                 
                 // Prepare CraftItemStack
                 CRAFT_STACK = loader.loadClass(packageName + ".inventory.CraftItemStack");
@@ -325,8 +325,9 @@ public class NbtFactory {
                 STACK_TAG = getField(null, CRAFT_HANDLE.getType(), "tag");
                 
                 // Loading/saving
-                LOAD_COMPOUND = getMethod(Modifier.STATIC, 0, BASE_CLASS, null, DataInput.class);
-                SAVE_COMPOUND = getMethod(Modifier.STATIC, 0, BASE_CLASS, null, BASE_CLASS, DataOutput.class);
+                Class<?> compressedStreamTools = loader.loadClass(BASE_CLASS.getPackage().getName() + ".NBTCompressedStreamTools");
+                LOAD_COMPOUND = getMethod(Modifier.STATIC, 0, compressedStreamTools, null, DataInputStream.class);
+                SAVE_COMPOUND = getMethod(Modifier.STATIC, 0, compressedStreamTools, null, BASE_CLASS, DataOutput.class);
                 
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException("Unable to find offline player.", e);
@@ -598,7 +599,7 @@ public class NbtFactory {
      * @return The created tag.
      */
     private Object createNbtTag(NbtType type, String name, Object value) {
-        Object tag = invokeMethod(NBT_CREATE_TAG, null, (byte)type.id, name);
+        Object tag = invokeMethod(NBT_CREATE_TAG, null, (byte)type.id);
 
         if (value != null) {
             setFieldValue(getDataField(type, tag), tag, value);

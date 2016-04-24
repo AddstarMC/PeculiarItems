@@ -93,16 +93,25 @@ public class PCRUtils {
 		Attribute statAttribute = findAttribute(storage, id);
 		if (statAttribute != null) {
 			statAttribute.setName(name);
+			storage.remove(statAttribute);
+			storage.add(statAttribute);
 		} else {
 			statAttribute = Attribute.newBuilder()
 					.name(name)
 					.amount(0)
 					.operation(Operation.ADD_NUMBER)
-					.uuid(Constants.DISPLAYNAME_ID)
+					.uuid(id)
 					.type(AttributeType.GENERIC_ATTACK_DAMAGE)
 					.build();
 			
 			storage.add(statAttribute);
+		}
+	}
+	
+	public static void removeAttribute(Attributes storage, UUID id) {
+		Attribute attribute = findAttribute(storage, id);
+		if (attribute != null) {
+			storage.remove(attribute);
 		}
 	}
 	

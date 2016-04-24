@@ -39,6 +39,7 @@ public class PeculiarItem {
 	
 	private void loadStats() {
 		for (Attribute attribute : storage.values()) {
+			System.out.println("Seen attribute: " + attribute.getName() + " : " + attribute.getUUID());
 			if (attribute.getName().startsWith("PCS|")) {
 				String[] parts = attribute.getName().split("\\|");
 				String name = parts[1];
@@ -46,6 +47,7 @@ public class PeculiarItem {
 				
 				PeculiarStat stat = PeculiarItemsPlugin.getPlugin().getStats().loadStat(name.toUpperCase());
 				if (stat != null) {
+					System.out.println("Load stat " + stat.getDisplayName() + " " + value);
 					stats.put(stat, value);
 				}
 			}
@@ -54,6 +56,7 @@ public class PeculiarItem {
 		Attribute nameAttribute = PCRUtils.findAttribute(storage, Constants.DISPLAYNAME_ID);
 		if (nameAttribute != null) {
 			displayName = nameAttribute.getName();
+			System.out.println("Load name = " + displayName);
 		}
 		
 		Attribute primaryAttribute = PCRUtils.findAttribute(storage, Constants.PRIMARYSTAT_ID);
@@ -61,6 +64,8 @@ public class PeculiarItem {
 			String statName = primaryAttribute.getName();
 			PeculiarStat stat = PeculiarItemsPlugin.getPlugin().getStats().loadStat(statName.toUpperCase());
 			primaryStat = stat;
+			
+			System.out.println("Load primary = " + primaryStat.getName());
 		}
 	}
 	
@@ -127,16 +132,7 @@ public class PeculiarItem {
 		if (!newRank.equals(currentRank)) {
 			// Level up!
 			
-			// Create an item to get the real name to display
-			ItemStack tempItem = new ItemStack(getItemStack());
-			if (displayName != null) {
-				ItemMeta meta = tempItem.getItemMeta();
-				meta.setDisplayName(displayName);
-				meta.setLore(null);
-				tempItem.setItemMeta(meta);
-			}
-			
-			String itemName = StringTranslator.getName(tempItem);
+			String itemName = getActualItemName();
 			newRank = primaryStat.getDisplayColor() + newRank;
 			
 			// Display the rank up
@@ -192,6 +188,23 @@ public class PeculiarItem {
 		update();
 	}
 	
+	public String getActualItemName() {
+		// Create an item to get the real name to display
+		ItemStack tempItem = new ItemStack(getItemStack());
+		ItemMeta meta = tempItem.getItemMeta();
+		
+		if (displayName != null) {
+			meta.setDisplayName(displayName);
+		} else {
+			meta.setDisplayName(null);
+		}
+		
+		meta.setLore(null);
+		
+		tempItem.setItemMeta(meta);
+		return StringTranslator.getName(tempItem);
+	}
+	
 	public void setPrimary(PeculiarStat stat) {
 		Preconditions.checkArgument(!(stat instanceof PeculiarSubStat));
 		primaryStat = stat;
@@ -207,8 +220,7 @@ public class PeculiarItem {
 		if (displayName != null) {
 			meta.setDisplayName(ChatColor.GOLD + rank + " " + displayName);
 		} else {
-			String itemName = StringTranslator.getName(getItemStack());
-			meta.setDisplayName(ChatColor.GOLD + rank + " " + itemName);
+			meta.setDisplayName(ChatColor.GOLD + rank + " " + getActualItemName());
 		}
 		
 		// Display stats
@@ -238,6 +250,21 @@ public class PeculiarItem {
 	}
 	
 	private void saveStats() {
+		List<Attribute> attributes = Lists.newArrayList();
+		// Find non PCR related attributes
+		for (Attribute attribute : storage.values()) {
+			if (!attribute.getName().startsWith("PCS|")) {
+				attributes.add(attribute);
+			}
+		}
+		
+		storage.clear();
+		// Add back in non PCR attributes
+		for (Attribute attribute : attributes) {
+			storage.add(attribute);
+		}
+		
+		// Now save PCR stuff
 		for (PeculiarStat stat : stats.keySet()) {
 			int value = stats.get(stat);
 			
@@ -248,6 +275,7 @@ public class PeculiarItem {
 		}
 		
 		if (displayName != null) {
+			System.out.println("Setting name to " + displayName);
 			PCRUtils.setAttribute(storage, Constants.DISPLAYNAME_ID, displayName);
 		}
 		
