@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import com.comphenix.attributes.Attributes;
@@ -59,44 +58,6 @@ public class PCRUtils {
 			}
 		}
 		return st;
-	}
-	
-	public static boolean isPeculiarItem(ItemStack item){
-		if(item == null || item.getType() == Material.AIR) return false;
-		if(item.getItemMeta().getLore() != null && item.getItemMeta().getLore().get(0).equals(ChatColor.GOLD + "---Peculiar Item---")){
-			return true;
-		}
-		return false;
-	}
-	
-	public static boolean isPeculiarModifier(ItemStack item){
-		if(item == null || item.getType() == Material.AIR) return false;
-		if(item.getItemMeta().getLore() != null && 
-				item.getItemMeta().getLore().get(0).equals(ChatColor.GOLD + "---Peculiar Modifier---") && 
-				(item.getType() == Material.NAME_TAG || item.getType() == Material.DIAMOND || 
-				item.getType() == Material.GOLD_INGOT || item.getType() == Material.IRON_INGOT)){
-			return true;
-		}
-		return false;
-	}
-	
-	public static String capitalize(String toCapitalize){
-		String val = toCapitalize.toLowerCase();
-		String[] spl = val.split(" ");
-		val = "";
-		for(String s : spl){
-			String c = Character.toString(s.charAt(0));
-			s = s.substring(1);
-			c = c.toUpperCase();
-			s = c + s;
-			val += s + " ";
-		}
-		val = val.trim();
-		return val;
-	}
-	
-	public static String getItemName(ItemStack item){
-		return capitalize(item.getType().toString().replace("_", " "));
 	}
 	
 	/**
