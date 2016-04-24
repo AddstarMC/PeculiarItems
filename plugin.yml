@@ -1,5 +1,5 @@
 name: PeculiarItems
-main: au.com.mineauz.peculiaritems.Main
+main: au.com.mineauz.peculiaritems.PeculiarItemsPlugin
 version: 1.0.0
 author: _Razz_
 
