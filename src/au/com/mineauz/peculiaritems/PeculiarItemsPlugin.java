@@ -7,11 +7,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import au.com.mineauz.peculiaritems.commands.CommandDispatcher;
 import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStat;
 import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStats;
+import au.com.mineauz.peculiaritems.peculiarstats.StatListener;
 
-public class Main extends JavaPlugin{
+public class PeculiarItemsPlugin extends JavaPlugin{
 	
 	private boolean broadcastRank = true;
-	private static Main plugin;
+	private static PeculiarItemsPlugin plugin;
 	private Data data;
 	private PeculiarStats stats;
 	
@@ -53,6 +54,7 @@ public class Main extends JavaPlugin{
 		stats = new PeculiarStats();
 		
 		getServer().getPluginManager().registerEvents(new Events(), this);
+		getServer().getPluginManager().registerEvents(new StatListener(), this);
 		getLogger().info("Peculiar Items successfully enabled!");
 	}
 	
@@ -67,7 +69,7 @@ public class Main extends JavaPlugin{
 		return broadcastRank;
 	}
 	
-	public static Main getPlugin(){
+	public static PeculiarItemsPlugin getPlugin(){
 		return plugin;
 	}
 	

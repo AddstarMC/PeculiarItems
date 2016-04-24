@@ -15,7 +15,7 @@ import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStat;
 
 public class Events implements Listener{
 	
-	private Main plugin = Main.getPlugin();
+	private PeculiarItemsPlugin plugin = PeculiarItemsPlugin.getPlugin();
 	
 	@EventHandler
 	private void playerLogin(PlayerJoinEvent event){
@@ -73,12 +73,8 @@ public class Events implements Listener{
 				PeculiarItem pitem = new PeculiarItem(nitem);
 				
 				for(PeculiarStat stat : mod.getAllStats()){
-					if(!pitem.hasStat(stat.getName()) && stat.isCompatibleItem(type)){
+					if(!pitem.hasStat(stat) && stat.isCompatibleItem(type)){
 						pitem.addStat(stat);
-						List<String> sstats = mod.getAllSubStats(stat);
-						for(String sstat : sstats){
-							pitem.addSubStat(stat, sstat);
-						}
 					}
 				}
 				

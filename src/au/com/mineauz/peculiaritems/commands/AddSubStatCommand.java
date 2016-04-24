@@ -6,7 +6,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import au.com.mineauz.peculiaritems.Main;
+import au.com.mineauz.peculiaritems.PeculiarItemsPlugin;
 import au.com.mineauz.peculiaritems.PCRPlayer;
 import au.com.mineauz.peculiaritems.PCRUtils;
 import au.com.mineauz.peculiaritems.PeculiarItem;
@@ -42,7 +42,7 @@ public class AddSubStatCommand implements ICommand {
 	@Override
 	public List<String> onTabComplete(CommandSender sender, String[] args) {
 		if(args.length == 1){
-			List<String> values = Main.getPlugin().getStats().getAllStatNames();
+			List<String> values = PeculiarItemsPlugin.getPlugin().getStats().getAllStatNames();
 			return PCRUtils.tabCompleteMatch(values, args[0]);
 		}
 		
@@ -52,7 +52,7 @@ public class AddSubStatCommand implements ICommand {
 	@Override
 	public boolean onCommand(CommandSender sender, String[] args) {
 		if(args.length > 1){
-			Main plugin = Main.getPlugin();
+			PeculiarItemsPlugin plugin = PeculiarItemsPlugin.getPlugin();
 			PCRPlayer ply = plugin.getData().getPlayer((Player)sender);
 			if(ply.getItemInHand() == null)
 				ply.sendMessage(ChatColor.RED + "You must have an item in your hand!");

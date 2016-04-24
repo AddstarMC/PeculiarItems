@@ -6,7 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import au.com.mineauz.peculiaritems.Main;
+import au.com.mineauz.peculiaritems.PeculiarItemsPlugin;
 import au.com.mineauz.peculiaritems.PCRPlayer;
 import au.com.mineauz.peculiaritems.PCRUtils;
 
@@ -37,7 +37,7 @@ public class TimesProtectedStat extends PeculiarStat implements Listener{
 	@EventHandler(ignoreCancelled = true)
 	private void playerHurt(EntityDamageByEntityEvent event){
 		if(event.getEntity() instanceof Player){
-			PCRPlayer ply = Main.getPlugin().getData().getPlayer((Player)event.getEntity());
+			PCRPlayer ply = PeculiarItemsPlugin.getPlugin().getData().getPlayer((Player)event.getEntity());
 			if(ply == null) return;
 			
 			ply.incrementActiveArmorStat(getName(), 1, 

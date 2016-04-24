@@ -10,7 +10,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import au.com.mineauz.peculiaritems.Data;
-import au.com.mineauz.peculiaritems.Main;
+import au.com.mineauz.peculiaritems.PeculiarItemsPlugin;
 import au.com.mineauz.peculiaritems.PCRPlayer;
 import au.com.mineauz.peculiaritems.PeculiarObject;
 
@@ -20,6 +20,10 @@ public abstract class PeculiarStat implements Listener{
 	public abstract ChatColor getDisplayColor();
 	public abstract String getDisplayName();
 	public abstract boolean isCompatibleItem(String type);
+	
+	public String toDisplayString(int value) {
+		return getDisplayColor() + getDisplayName() + ": " + value; 
+	}
 	
 	public void incrementStat(PCRPlayer player, PeculiarObject item, int amount){
 		ItemMeta meta = item.getItem().getItemMeta();
@@ -32,14 +36,14 @@ public abstract class PeculiarStat implements Listener{
 		addStat(item, inc, line);
 		meta = item.getItem().getItemMeta();
 		
-		Data data = Main.getPlugin().getData();
+		Data data = PeculiarItemsPlugin.getPlugin().getData();
 		
 		if(data.hasRank(inc) && item.isPrimaryLevelStat(this)){
 			String rank = data.getRank(inc);
 			
 			meta.setDisplayName(ChatColor.RESET.toString() + ChatColor.GOLD + rank + " " + 
 					ChatColor.RESET + ChatColor.GOLD + item.getItemName());
-			if(Main.getPlugin().isBroadcastingRankUp()){
+			if(PeculiarItemsPlugin.getPlugin().isBroadcastingRankUp()){
 				Bukkit.getServer().broadcastMessage(ChatColor.AQUA + player.getDisplayName() + "'s " + 
 						item.getItemName() + " has reached a new rank: " + getDisplayColor() + rank);
 			}
@@ -92,9 +96,5 @@ public abstract class PeculiarStat implements Listener{
 	
 	public final void unregisterEvents() {
 		HandlerList.unregisterAll(this);
-	}
-	
-	public final void callSubStat(PeculiarObject item, int amount, String special){
-		PeculiarSubStat.incrementSubStat(item, this, amount, special);
 	}
 }

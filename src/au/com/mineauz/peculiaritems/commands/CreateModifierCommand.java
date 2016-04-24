@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import au.com.mineauz.peculiaritems.Main;
+import au.com.mineauz.peculiaritems.PeculiarItemsPlugin;
 import au.com.mineauz.peculiaritems.PCRUtils;
 import au.com.mineauz.peculiaritems.PeculiarModifier;
 
@@ -46,7 +46,7 @@ public class CreateModifierCommand implements ICommand {
 			return PCRUtils.tabCompleteMatch(Arrays.asList("iron", "gold", "diamond", "nametag"), args[0]);
 		}
 		else if(args.length == 2){
-			List<String> list = Main.getPlugin().getStats().getAllStatNames();
+			List<String> list = PeculiarItemsPlugin.getPlugin().getStats().getAllStatNames();
 			list.add("random");
 			return PCRUtils.tabCompleteMatch(list, args[1]);
 		}
@@ -56,7 +56,7 @@ public class CreateModifierCommand implements ICommand {
 	@Override
 	public boolean onCommand(CommandSender sender, String[] args) {
 		if(args.length == 2){
-			Main plugin = Main.getPlugin();
+			PeculiarItemsPlugin plugin = PeculiarItemsPlugin.getPlugin();
 			Player ply = (Player)sender;
 			Material type = null;
 			

@@ -22,7 +22,7 @@ public class PeculiarObject {
 		if(meta.getLore() != null){
 			lore = meta.getLore();
 			for(int i = 1; i < lore.size(); i++){
-				PeculiarStat stat = Main.getPlugin().getStats().matchStat(lore.get(i));
+				PeculiarStat stat = PeculiarItemsPlugin.getPlugin().getStats().matchStat(lore.get(i));
 				if(stat != null)
 					stats.add(stat.getName());
 			}
@@ -65,7 +65,7 @@ public class PeculiarObject {
 	 */
 	public PeculiarStat getStat(String stat){
 		if(hasStat(stat))
-			return Main.getPlugin().getStats().getStat(stat.toUpperCase());
+			return PeculiarItemsPlugin.getPlugin().getStats().getStat(stat.toUpperCase());
 		return null;
 	}
 	

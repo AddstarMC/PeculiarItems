@@ -1,63 +1,69 @@
 package au.com.mineauz.peculiaritems.peculiarstats;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import org.bukkit.ChatColor;
+import org.apache.commons.lang.math.RandomUtils;
 import org.bukkit.plugin.Plugin;
 
-import au.com.mineauz.peculiaritems.Main;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.SetMultimap;
+import au.com.mineauz.peculiaritems.PeculiarItemsPlugin;
 
 public class PeculiarStats {
-	private Map<String, PeculiarStat> stats = new HashMap<String, PeculiarStat>();
+	public static final BlocksBrokenStat BLOCKS_BROKEN = new BlocksBrokenStat();
+	public static final MonstersKilledStat MOBS_KILLED = new MonstersKilledStat();
+	
+	private final Map<String, PeculiarStat> stats;
+	private final SetMultimap<Plugin, PeculiarStat> pluginStats;
 	
 	public PeculiarStats() {
-		addStat(new BlocksBokenStat(), Main.getPlugin());
-		addStat(new MonstersKilledStat(), Main.getPlugin());
-		addStat(new TimesProtectedStat(), Main.getPlugin());
+		stats = Maps.newHashMap();
+		pluginStats = HashMultimap.create();
+		
+		addStat(BLOCKS_BROKEN, PeculiarItemsPlugin.getPlugin());
+		addStat(MOBS_KILLED, PeculiarItemsPlugin.getPlugin());
+		addStat(new TimesProtectedStat(), PeculiarItemsPlugin.getPlugin());
 	}
 	
-	public void addStat(PeculiarStat stat, Plugin plugin){
-		if(!stats.containsKey(stat.getName().toUpperCase().replace(" ", "_"))){
-			stats.put(stat.getName().toUpperCase().replace(" ", "_"), stat);
-			stat.registerEvents(plugin);
+	public void addStat(PeculiarStat stat, Plugin plugin) {
+		Preconditions.checkArgument(!(stat instanceof PeculiarSubStat));
+		
+		if (stats.containsValue(stat)) {
+			return;
 		}
+		
+		stats.put(stat.getName().toUpperCase(), stat);
+		pluginStats.put(plugin, stat);
 	}
 	
-	public PeculiarStat getStat(String name){
-		return stats.get(name);
+	public PeculiarStat getRandomStat() {
+		return Iterables.get(stats.values(), RandomUtils.nextInt(stats.size()), null);
 	}
 	
-	public PeculiarStat getRandomStat(){
-		List<PeculiarStat> s = new ArrayList<PeculiarStat>(stats.values());
-		Collections.shuffle(s);
-		return s.get(0);
+	public Collection<PeculiarStat> getAllStats() {
+		return Collections.unmodifiableCollection(stats.values());
 	}
 	
-	public List<PeculiarStat> getAllStats(){
-		return new ArrayList<PeculiarStat>(stats.values());
-	}
-	
-	public List<String> getAllStatNames(){
-		return new ArrayList<String>(stats.keySet());
-	}
-	
-	public PeculiarStat matchStat(String lore){
-		for(PeculiarStat stat : getAllStats()){
-			if(ChatColor.stripColor(lore).matches("(" + stat.getDisplayName() + ":) [0-9]+"))
-				return stat;
+	public PeculiarStat loadStat(String name) {
+		String[] parts = name.split("\\[");
+		
+		PeculiarStat parentStat = stats.get(parts[0].toUpperCase());
+		if (parentStat == null) {
+			return null;
 		}
-		return null;
-	}
-	
-	public void removeStat(String name){
-		name = name.toUpperCase();
-		if(stats.containsKey(name)){
-			stats.get(name).unregisterEvents();
-			stats.remove(name);
+		
+		if (parts.length == 1) {
+			return parentStat;
+		} else {
+			if (parentStat instanceof SubStatable<?>) {
+				return ((SubStatable<?>)parentStat).ofEncoded(parts[1]);
+			} else {
+				return null;
+			}
 		}
 	}
 }
