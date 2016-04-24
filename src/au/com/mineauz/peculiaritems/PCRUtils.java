@@ -226,7 +226,7 @@ public class PCRUtils {
 		case LEATHER_BOOTS:
 		case IRON_BOOTS:
 		case CHAINMAIL_BOOTS:
-		case GOLD_BOOTS:default:
+		case GOLD_BOOTS:
 			return ArmorType.None;
 		case DIAMOND_BOOTS:
 			return ArmorType.Boots;
@@ -247,4 +247,5 @@ public class PCRUtils {
 		Boots,
 		Shield
 	}
+	
 }

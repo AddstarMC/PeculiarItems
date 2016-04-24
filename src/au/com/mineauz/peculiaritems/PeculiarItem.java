@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -108,6 +110,42 @@ public class PeculiarItem {
 	
 	public void decrementStat(PeculiarStat stat, int value) {
 		incrementStat(stat, -value);
+	}
+	
+	public void incrementStatWithNotify(PeculiarStat stat, int value, Player player) {
+		// Just do normal behaviour without a primary stat
+		if (primaryStat == null) {
+			incrementStat(stat, value);
+			return;
+		}
+		
+		// See if theres a rank change
+		String currentRank = getRank();
+		incrementStat(stat, value);
+		String newRank = getRank();
+		
+		if (!newRank.equals(currentRank)) {
+			// Level up!
+			
+			// Create an item to get the real name to display
+			ItemStack tempItem = new ItemStack(getItemStack());
+			if (displayName != null) {
+				ItemMeta meta = tempItem.getItemMeta();
+				meta.setDisplayName(displayName);
+				meta.setLore(null);
+				tempItem.setItemMeta(meta);
+			}
+			
+			String itemName = StringTranslator.getName(tempItem);
+			newRank = primaryStat.getDisplayColor() + newRank;
+			
+			// Display the rank up
+			if (PeculiarItemsPlugin.getPlugin().isBroadcastingRankUp()) {
+				Bukkit.broadcastMessage(ChatColor.AQUA + player.getDisplayName() + "'s " + ChatColor.ITALIC + itemName + ChatColor.AQUA + " has reached a new rank: " + newRank);
+			} else {
+				player.sendMessage(ChatColor.AQUA + "Your " + ChatColor.ITALIC + itemName + ChatColor.AQUA + " has reached a new rank: " + newRank);
+			}
+		}
 	}
 	
 	public void removeStat(PeculiarStat stat) {

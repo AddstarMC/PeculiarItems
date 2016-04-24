@@ -1,10 +1,13 @@
 package au.com.mineauz.peculiaritems.peculiarstats;
 
+import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -24,7 +27,7 @@ public class StatListener implements Listener {
 		}
 		
 		PeculiarStat stat = PeculiarStats.BLOCKS_BROKEN.of(event.getBlock().getState().getData());
-		item.incrementStat(stat, 1);
+		item.incrementStatWithNotify(stat, 1, event.getPlayer());
 	}
 	
 	@EventHandler(ignoreCancelled = true)
@@ -50,6 +53,26 @@ public class StatListener implements Listener {
 		}
 		
 		PeculiarStat stat = PeculiarStats.MOBS_KILLED.of(event.getEntityType());
-		item.incrementStat(stat, 1);
+		item.incrementStatWithNotify(stat, 1, ent.getKiller());
+	}
+	
+	@EventHandler(ignoreCancelled = true)
+	private void playerHurt(EntityDamageByEntityEvent event) {
+		if (!(event.getEntity() instanceof Player)) {
+			return;
+		}
+		
+		Player player = (Player)event.getEntity();
+		
+		for (ItemStack armor : player.getEquipment().getArmorContents()) {
+			if (armor == null || armor.getType() == Material.AIR) {
+				continue;
+			}
+			
+			PeculiarItem item = new PeculiarItem(armor);
+			if (item.isPeculiar()) {
+				item.incrementStatWithNotify(PeculiarStats.TIMES_PROTECTED, 1, player);
+			}
+		}
 	}
 }
