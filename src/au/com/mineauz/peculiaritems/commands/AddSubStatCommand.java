@@ -5,15 +5,18 @@ import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import com.google.common.collect.Lists;
 
 import au.com.mineauz.peculiaritems.PeculiarItemsPlugin;
-import au.com.mineauz.peculiaritems.PCRPlayer;
 import au.com.mineauz.peculiaritems.PCRUtils;
 import au.com.mineauz.peculiaritems.PeculiarItem;
-import au.com.mineauz.peculiaritems.PeculiarObject;
+import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStat;
+import au.com.mineauz.peculiaritems.peculiarstats.PeculiarSubStat;
+import au.com.mineauz.peculiaritems.peculiarstats.SubStatable;
 
 public class AddSubStatCommand implements ICommand {
-
 	@Override
 	public String getName() {
 		return "addsubstat";
@@ -41,8 +44,11 @@ public class AddSubStatCommand implements ICommand {
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, String[] args) {
-		if(args.length == 1){
-			List<String> values = PeculiarItemsPlugin.getPlugin().getStats().getAllStatNames();
+		if (args.length == 1) {
+			List<String> values = Lists.newArrayList();
+			for (PeculiarStat stat : PeculiarItemsPlugin.getPlugin().getStats().getAllStats()) {
+				values.add(stat.getName().toLowerCase());
+			}
 			return PCRUtils.tabCompleteMatch(values, args[0]);
 		}
 		
@@ -51,32 +57,55 @@ public class AddSubStatCommand implements ICommand {
 
 	@Override
 	public boolean onCommand(CommandSender sender, String[] args) {
-		if(args.length > 1){
-			PeculiarItemsPlugin plugin = PeculiarItemsPlugin.getPlugin();
-			PCRPlayer ply = plugin.getData().getPlayer((Player)sender);
-			if(ply.getItemInHand() == null)
-				ply.sendMessage(ChatColor.RED + "You must have an item in your hand!");
-			String stat = args[0].toUpperCase();
-			String spec = PCRUtils.capitalize(args[1].replace("_", " "));
-			if(plugin.getStats().getStat(stat) != null){
-				PeculiarObject po = new PeculiarObject(ply.getItemInHand());
-				if(!PCRUtils.isPeculiarItem(ply.getItemInHand()) && 
-						!PCRUtils.isPeculiarModifier(ply.getItemInHand())){
-					po = new PeculiarItem(ply.getItemInHand());
-				}
-				if(!po.hasStat(stat))
-					po.addStat(plugin.getStats().getStat(stat));
-				po.addSubStat(plugin.getStats().getStat(stat), spec);
-				
-				if(PCRUtils.isPeculiarItem(ply.getItemInHand()))
-					ply.setActiveItem(new PeculiarItem(ply.getItemInHand()));
-			}
-			else{
-				ply.sendMessage(ChatColor.RED + "No stat by the name " + stat);
-			}
+		PeculiarItemsPlugin plugin = PeculiarItemsPlugin.getPlugin();
+		
+		if (args.length < 2) {
+			return false;
+		}
+		
+		Player player = (Player)sender;
+		ItemStack held = player.getInventory().getItemInMainHand();
+		
+		if (held == null) {
+			player.sendMessage(ChatColor.RED + "You must have an item in your hand!");
 			return true;
 		}
-		return false;
+		
+		// Determine the stat to add to
+		PeculiarStat stat = plugin.getStats().loadStat(args[0]);
+		
+		if (stat == null || stat instanceof PeculiarSubStat) {
+			player.sendMessage(ChatColor.RED + "No stat by the name " + args[0]);
+			return true;
+		}
+		
+		// Get the item
+		PeculiarItem item = new PeculiarItem(held);
+		
+		if (!item.hasStat(stat)) {
+			player.sendMessage(ChatColor.RED + "The stat " + args[0] + " is not present on this item");
+			return true;
+		}
+		
+		// Get the sub stat
+		if (!(stat instanceof SubStatable<?>)) {
+			player.sendMessage(ChatColor.RED + "The stat " + args[0] + " does not have sub stats");
+			return true;
+		}
+		
+		PeculiarSubStat substat = ((SubStatable<?>)stat).ofEncoded(args[1]);
+		if (substat == null) {
+			player.sendMessage(ChatColor.RED + "Unknown sub stat " + args[1] + " for stat " + args[0]);
+			return true;
+		}
+		
+		// Add the stat
+		item.addStat(substat);
+		
+		player.getInventory().setItemInMainHand(item.getItemStack());
+		player.sendMessage(ChatColor.GREEN + "Successfully added the sub stat");
+		
+		return true;
 	}
 
 }

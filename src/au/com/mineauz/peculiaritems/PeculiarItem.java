@@ -75,7 +75,10 @@ public class PeculiarItem {
 				return;
 			}
 		}
-		stats.put(stat, 0);
+		
+		if (!stats.containsKey(stat)) {
+			stats.put(stat, 0);
+		}
 
 		saveStats();
 		update();
