@@ -12,9 +12,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.comphenix.attributes.Attributes;
 import com.comphenix.attributes.Attributes.Attribute;
-import com.comphenix.attributes.Attributes.AttributeType;
-import com.comphenix.attributes.Attributes.Operation;
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -52,12 +49,12 @@ public class PeculiarItem {
 			}
 		}
 		
-		Attribute nameAttribute = findAttribute(Constants.DISPLAYNAME_ID);
+		Attribute nameAttribute = PCRUtils.findAttribute(storage, Constants.DISPLAYNAME_ID);
 		if (nameAttribute != null) {
 			displayName = nameAttribute.getName();
 		}
 		
-		Attribute primaryAttribute = findAttribute(Constants.PRIMARYSTAT_ID);
+		Attribute primaryAttribute = PCRUtils.findAttribute(storage, Constants.PRIMARYSTAT_ID);
 		if (primaryAttribute != null) {
 			String statName = primaryAttribute.getName();
 			PeculiarStat stat = PeculiarItemsPlugin.getPlugin().getStats().loadStat(statName.toUpperCase());
@@ -209,42 +206,15 @@ public class PeculiarItem {
 			String attributeName = "PCS|" + stat.getName() + "|" + value;
 			UUID attributeUUID = UUID.nameUUIDFromBytes(stat.getName().getBytes());
 			
-			setAttribute(attributeUUID, attributeName);
+			PCRUtils.setAttribute(storage, attributeUUID, attributeName);
 		}
 		
 		if (displayName != null) {
-			setAttribute(Constants.DISPLAYNAME_ID, displayName);
+			PCRUtils.setAttribute(storage, Constants.DISPLAYNAME_ID, displayName);
 		}
 		
 		if (primaryStat != null) {
-			setAttribute(Constants.PRIMARYSTAT_ID, primaryStat.getName());
-		}
-	}
-	
-	private Attribute findAttribute(UUID id) {
-		for (Attribute attribute : storage.values()) {
-			if (Objects.equal(attribute.getUUID(), id)) {
-				return attribute;
-			}
-		}
-		
-		return null;
-	}
-	
-	private void setAttribute(UUID id, String name) {
-		Attribute statAttribute = findAttribute(id);
-		if (statAttribute != null) {
-			statAttribute.setName(name);
-		} else {
-			statAttribute = Attribute.newBuilder()
-					.name(name)
-					.amount(0)
-					.operation(Operation.ADD_NUMBER)
-					.uuid(Constants.DISPLAYNAME_ID)
-					.type(AttributeType.GENERIC_ATTACK_DAMAGE)
-					.build();
-			
-			storage.add(statAttribute);
+			PCRUtils.setAttribute(storage, Constants.PRIMARYSTAT_ID, primaryStat.getName());
 		}
 	}
 }

@@ -1,6 +1,5 @@
 package au.com.mineauz.peculiaritems.commands;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -9,9 +8,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.google.common.collect.Lists;
+
 import au.com.mineauz.peculiaritems.PeculiarItemsPlugin;
+import au.com.addstar.monolith.lookup.Lookup;
+import au.com.addstar.monolith.lookup.MaterialDefinition;
 import au.com.mineauz.peculiaritems.PCRUtils;
+import au.com.mineauz.peculiaritems.PeculiarItem;
 import au.com.mineauz.peculiaritems.PeculiarModifier;
+import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStat;
 
 public class CreateModifierCommand implements ICommand {
 
@@ -37,59 +42,93 @@ public class CreateModifierCommand implements ICommand {
 
 	@Override
 	public String[] getUsage() {
-		return new String[] {"<Type> <Stat>", "<Type> random"};
+		return new String[] {"<Material> <Stat>", "<Material> random", "HAND <Stat>", "HAND random"};
 	}
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, String[] args) {
-		if(args.length == 1){
-			return PCRUtils.tabCompleteMatch(Arrays.asList("iron", "gold", "diamond", "nametag"), args[0]);
-		}
-		else if(args.length == 2){
-			List<String> list = PeculiarItemsPlugin.getPlugin().getStats().getAllStatNames();
-			list.add("random");
-			return PCRUtils.tabCompleteMatch(list, args[1]);
+		if (args.length == 2) {
+			List<String> values = Lists.newArrayList();
+			for (PeculiarStat stat : PeculiarItemsPlugin.getPlugin().getStats().getAllStats()) {
+				values.add(stat.getName().toLowerCase());
+			}
+			values.add("random");
+			return PCRUtils.tabCompleteMatch(values, args[1]);
 		}
 		return null;
 	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, String[] args) {
-		if(args.length == 2){
-			PeculiarItemsPlugin plugin = PeculiarItemsPlugin.getPlugin();
-			Player ply = (Player)sender;
-			Material type = null;
+		if (args.length < 2) {
+			return false;
+		}
+		
+		PeculiarItemsPlugin plugin = PeculiarItemsPlugin.getPlugin();
+		Player player = (Player)sender;
+		
+		// Get the target item
+		ItemStack target;
+		boolean isHand = false;
+		
+		if (args[0].equals("HAND")) {
+			target = player.getInventory().getItemInMainHand();
+			isHand = true;
 			
-			if(args[0].equalsIgnoreCase("iron") || args[0].equalsIgnoreCase("gold")){
-				type = Material.getMaterial(args[0].toUpperCase() + "_INGOT");
+			if (target == null) {
+				player.sendMessage(ChatColor.RED + "You are not holding an item");
+				return true;
 			}
-			else if(args[0].equalsIgnoreCase("diamond")){
-				type = Material.DIAMOND;
-			}
-			else if(args[0].equalsIgnoreCase("nametag")){
-				type = Material.NAME_TAG;
-			}
-			
-			PeculiarModifier pm = new PeculiarModifier(new ItemStack(type));
-			
-			if(!args[1].equalsIgnoreCase("random")){
-				String arg = args[1].toUpperCase();
-				if(plugin.getStats().getStat(arg) != null){
-					pm.addStat(plugin.getStats().getStat(arg));
-				}
-				else{
-					ply.sendMessage(ChatColor.RED + "No stat by the name " + arg);
+		} else {
+			// Parse a material
+			MaterialDefinition def = Lookup.findItemByName(args[0]);
+			if (def == null) {
+				Material type = Material.getMaterial(args[0]);
+				if (type == null) {
+					player.sendMessage(ChatColor.RED + "Unknown material " + args[0]);
 					return true;
 				}
+				
+				target = new ItemStack(type, 1);
+			} else {
+				target = def.asItemStack(1);
 			}
-			else{
-				pm.addStat(plugin.getStats().getRandomStat());
-			}
-			
-			ply.getInventory().addItem(pm.getItem());
+		}
+		
+		// Make sure its not a peculiar item
+		if (new PeculiarItem(target).isPeculiar()) {
+			player.sendMessage(ChatColor.RED + "You cannot turn this item in a modifier");
 			return true;
 		}
-		return false;
+		
+		// Determine the stat to add
+		PeculiarStat stat;
+		
+		if (args[1].equalsIgnoreCase("random")) {
+			stat = plugin.getStats().getRandomStat(); 
+		} else {
+			stat = plugin.getStats().loadStat(args[1]);
+			
+			if (stat == null) {
+				player.sendMessage(ChatColor.RED + "No stat by the name " + args[1]);
+				return true;
+			}
+		}
+		
+		PeculiarModifier modifier = new PeculiarModifier(target);
+		modifier.addStat(stat);
+		
+		if (isHand) {
+			player.sendMessage(ChatColor.GREEN + "This item is now a peculiar modifier");
+			player.getInventory().setItemInMainHand(modifier.getItemStack());
+		} else {
+			player.sendMessage(ChatColor.GREEN + "Given you a peculiar modifier");
+			player.getInventory().addItem(modifier.getItemStack());
+		}
+		
+		player.updateInventory();
+		
+		return true;
 	}
 
 }
