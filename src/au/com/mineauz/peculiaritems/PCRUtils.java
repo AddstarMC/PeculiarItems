@@ -2,17 +2,10 @@ package au.com.mineauz.peculiaritems;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-
-import com.comphenix.attributes.Attributes;
-import com.comphenix.attributes.Attributes.Attribute;
-import com.comphenix.attributes.Attributes.AttributeType;
-import com.comphenix.attributes.Attributes.Operation;
-import com.google.common.base.Objects;
 
 public class PCRUtils {
 	
@@ -76,42 +69,6 @@ public class PCRUtils {
 					ret.add(m);
 			}
 			return ret;
-		}
-	}
-	
-	public static Attribute findAttribute(Attributes storage, UUID id) {
-		for (Attribute attribute : storage.values()) {
-			if (Objects.equal(attribute.getUUID(), id)) {
-				return attribute;
-			}
-		}
-		
-		return null;
-	}
-	
-	public static void setAttribute(Attributes storage, UUID id, String name) {
-		Attribute statAttribute = findAttribute(storage, id);
-		if (statAttribute != null) {
-			statAttribute.setName(name);
-			storage.remove(statAttribute);
-			storage.add(statAttribute);
-		} else {
-			statAttribute = Attribute.newBuilder()
-					.name(name)
-					.amount(0)
-					.operation(Operation.ADD_NUMBER)
-					.uuid(id)
-					.type(AttributeType.GENERIC_ATTACK_DAMAGE)
-					.build();
-			
-			storage.add(statAttribute);
-		}
-	}
-	
-	public static void removeAttribute(Attributes storage, UUID id) {
-		Attribute attribute = findAttribute(storage, id);
-		if (attribute != null) {
-			storage.remove(attribute);
 		}
 	}
 	

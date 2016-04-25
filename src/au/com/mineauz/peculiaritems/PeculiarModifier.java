@@ -3,47 +3,41 @@ package au.com.mineauz.peculiaritems;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.comphenix.attributes.Attributes;
-import com.comphenix.attributes.Attributes.Attribute;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import au.com.addstar.monolith.MonoItemStack;
+import au.com.addstar.monolith.properties.PropertyBase;
+import au.com.addstar.monolith.properties.StringProperty;
 import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStat;
 
 public class PeculiarModifier {
-	private final Attributes storage;
+	private final MonoItemStack item;
 	private final Set<PeculiarStat> stats;
 	private PeculiarStat primaryStat;
 	
 	public PeculiarModifier(ItemStack item) {
+		this.item = new MonoItemStack(item);
 		stats = Sets.newHashSet();
-		storage = new Attributes(item);
 		loadStats();
 	}
 	
 	private void loadStats() {
-		for (Attribute attribute : storage.values()) {
-			if (attribute.getName().startsWith("PCM|")) {
-				String[] parts = attribute.getName().split("\\|");
-				String name = parts[1];
-				
-				PeculiarStat stat = PeculiarItemsPlugin.getPlugin().getStats().loadStat(name.toUpperCase());
-				if (stat != null) {
-					stats.add(stat);
-				}
+		for (PropertyBase<?> property : item.getProperties().getAllProperties(Constants.PENDING_STATS_ID)) {
+			PeculiarStat stat = PeculiarItemsPlugin.getPlugin().getStats().loadStat(property.getName());
+			if (stat != null) {
+				stats.add(stat);
 			}
 		}
 		
-		Attribute primaryAttribute = PCRUtils.findAttribute(storage, Constants.PRIMARYSTAT_ID);
-		if (primaryAttribute != null) {
-			String statName = primaryAttribute.getName();
-			PeculiarStat stat = PeculiarItemsPlugin.getPlugin().getStats().loadStat(statName.toUpperCase());
+		String primaryName = item.getProperties().getString(Constants.FIELD_PRIMARYSTAT, Constants.PECULIAR_DATA_ID);
+		if (primaryName != null) {
+			PeculiarStat stat = PeculiarItemsPlugin.getPlugin().getStats().loadStat(primaryName);
 			primaryStat = stat;
 		}
 	}
@@ -53,7 +47,7 @@ public class PeculiarModifier {
 	}
 	
 	public ItemStack getItemStack() {
-		return storage.getStack();
+		return item;
 	}
 	
 	public void addStat(PeculiarStat stat) {
@@ -96,15 +90,15 @@ public class PeculiarModifier {
 	}
 	
 	private void saveStats() {
+		item.getProperties().clear(Constants.PECULIAR_DATA_ID);
+		item.getProperties().clear(Constants.PENDING_STATS_ID);
+		
 		for (PeculiarStat stat : stats) {
-			String attributeName = "PCM|" + stat.getName();
-			UUID attributeUUID = UUID.nameUUIDFromBytes(stat.getName().getBytes());
-			
-			PCRUtils.setAttribute(storage, attributeUUID, attributeName);
+			item.getProperties().add(new StringProperty(stat.getName(), Constants.PENDING_STATS_ID, ""));
 		}
 		
 		if (primaryStat != null) {
-			PCRUtils.setAttribute(storage, Constants.PRIMARYSTAT_ID, primaryStat.getName());
+			item.getProperties().add(new StringProperty(Constants.FIELD_PRIMARYSTAT, Constants.PECULIAR_DATA_ID, primaryStat.getName()));
 		}
 	}
 }

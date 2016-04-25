@@ -4,68 +4,56 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.comphenix.attributes.Attributes;
-import com.comphenix.attributes.Attributes.Attribute;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import au.com.addstar.monolith.MonoItemStack;
 import au.com.addstar.monolith.StringTranslator;
+import au.com.addstar.monolith.properties.IntegerProperty;
+import au.com.addstar.monolith.properties.PropertyBase;
+import au.com.addstar.monolith.properties.StringProperty;
 import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStat;
 import au.com.mineauz.peculiaritems.peculiarstats.PeculiarSubStat;
 import au.com.mineauz.peculiaritems.peculiarstats.SubStatable;
 
 public class PeculiarItem {
-	private final Attributes storage;
+	private final MonoItemStack item;
 	private final Map<PeculiarStat, Integer> stats;
 	private PeculiarStat primaryStat;
 	private String displayName;
 	
 	public PeculiarItem(ItemStack item) {
-		storage = new Attributes(item);
+		this.item = new MonoItemStack(item);
 		stats = Maps.newHashMap();
 		
 		loadStats();
 	}
 	
 	private void loadStats() {
-		for (Attribute attribute : storage.values()) {
-			System.out.println("Seen attribute: " + attribute.getName() + " : " + attribute.getUUID());
-			if (attribute.getName().startsWith("PCS|")) {
-				String[] parts = attribute.getName().split("\\|");
-				String name = parts[1];
-				int value = Integer.parseInt(parts[2]);
-				
-				PeculiarStat stat = PeculiarItemsPlugin.getPlugin().getStats().loadStat(name.toUpperCase());
-				if (stat != null) {
-					System.out.println("Load stat " + stat.getDisplayName() + " " + value);
-					stats.put(stat, value);
-				}
+		for (PropertyBase<?> property : item.getProperties().getAllProperties(Constants.STORED_STATS_ID)) {
+			String name = property.getName();
+			int value = ((IntegerProperty)property).getValue();
+			
+			PeculiarStat stat = PeculiarItemsPlugin.getPlugin().getStats().loadStat(name);
+			if (stat != null) {
+				stats.put(stat, value);
 			}
 		}
 		
-		Attribute nameAttribute = PCRUtils.findAttribute(storage, Constants.DISPLAYNAME_ID);
-		if (nameAttribute != null) {
-			displayName = nameAttribute.getName();
-			System.out.println("Load name = " + displayName);
-		}
+		displayName = item.getProperties().getString(Constants.FIELD_DISPLAYNAME, Constants.PECULIAR_DATA_ID);
 		
-		Attribute primaryAttribute = PCRUtils.findAttribute(storage, Constants.PRIMARYSTAT_ID);
-		if (primaryAttribute != null) {
-			String statName = primaryAttribute.getName();
-			PeculiarStat stat = PeculiarItemsPlugin.getPlugin().getStats().loadStat(statName.toUpperCase());
+		String primaryStatId = item.getProperties().getString(Constants.FIELD_PRIMARYSTAT, Constants.PECULIAR_DATA_ID);
+		if (primaryStatId != null) {
+			PeculiarStat stat = PeculiarItemsPlugin.getPlugin().getStats().loadStat(primaryStatId);
 			primaryStat = stat;
-			
-			System.out.println("Load primary = " + primaryStat.getName());
 		}
 	}
 	
@@ -246,41 +234,26 @@ public class PeculiarItem {
 	}
 	
 	public ItemStack getItemStack() {
-		return storage.getStack();
+		return item;
 	}
 	
 	private void saveStats() {
-		List<Attribute> attributes = Lists.newArrayList();
-		// Find non PCR related attributes
-		for (Attribute attribute : storage.values()) {
-			if (!attribute.getName().startsWith("PCS|")) {
-				attributes.add(attribute);
-			}
-		}
-		
-		storage.clear();
-		// Add back in non PCR attributes
-		for (Attribute attribute : attributes) {
-			storage.add(attribute);
-		}
+		item.getProperties().clear(Constants.STORED_STATS_ID);
+		item.getProperties().clear(Constants.PECULIAR_DATA_ID);
 		
 		// Now save PCR stuff
 		for (PeculiarStat stat : stats.keySet()) {
 			int value = stats.get(stat);
 			
-			String attributeName = "PCS|" + stat.getName() + "|" + value;
-			UUID attributeUUID = UUID.nameUUIDFromBytes(stat.getName().getBytes());
-			
-			PCRUtils.setAttribute(storage, attributeUUID, attributeName);
+			item.getProperties().add(new IntegerProperty(stat.getName(), Constants.STORED_STATS_ID, value));
 		}
 		
 		if (displayName != null) {
-			System.out.println("Setting name to " + displayName);
-			PCRUtils.setAttribute(storage, Constants.DISPLAYNAME_ID, displayName);
+			item.getProperties().add(new StringProperty(Constants.FIELD_DISPLAYNAME, Constants.PECULIAR_DATA_ID, displayName));
 		}
 		
 		if (primaryStat != null) {
-			PCRUtils.setAttribute(storage, Constants.PRIMARYSTAT_ID, primaryStat.getName());
+			item.getProperties().add(new StringProperty(Constants.FIELD_PRIMARYSTAT, Constants.PECULIAR_DATA_ID, primaryStat.getName()));
 		}
 	}
 }
