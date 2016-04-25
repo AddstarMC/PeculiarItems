@@ -32,7 +32,7 @@ public class PeculiarItem {
 	
 	public PeculiarItem(ItemStack item) {
 		this.item = new MonoItemStack(item);
-		stats = Maps.newHashMap();
+		stats = Maps.newLinkedHashMap();
 		
 		loadStats();
 	}
@@ -70,6 +70,10 @@ public class PeculiarItem {
 		
 		if (!stats.containsKey(stat)) {
 			stats.put(stat, 0);
+		}
+		
+		if (primaryStat == null) {
+			primaryStat = stat;
 		}
 
 		saveStats();
@@ -145,6 +149,18 @@ public class PeculiarItem {
 			for (PeculiarSubStat subStat : subStats) {
 				if (subStat.getParent() == stat) {
 					stats.remove(subStat);
+				}
+			}
+		}
+		
+		if (stat.equals(primaryStat)) {
+			primaryStat = null;
+			
+			// Try to assign a new primary
+			for (PeculiarStat s : stats.keySet()) {
+				if (!(s instanceof PeculiarSubStat)) {
+					primaryStat = s;
+					break;
 				}
 			}
 		}
@@ -225,11 +241,16 @@ public class PeculiarItem {
 	public String getRank() {
 		Data data = PeculiarItemsPlugin.getPlugin().getData();
 		
+		String rank = null;
 		if (primaryStat != null) {
 			int value = getStat(primaryStat);
-			return data.getRank(value);
-		} else {
+			rank = data.getRank(value);
+		}
+		
+		if (rank == null) {
 			return "Peculiar";
+		} else {
+			return rank;
 		}
 	}
 	

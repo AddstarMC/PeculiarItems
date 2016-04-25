@@ -16,12 +16,20 @@ public class Data {
 	}
 	
 	/**
-	 * Gets the rank of a predetermined level.
+	 * Gets the highest rank at a predetermined level.
 	 * @param level The level to get the rank of.
-	 * @return The rank name or <code>null</code> if one is not defined for this level.
+	 * @return The rank name or <code>null</code> if one is not defined.
 	 */
 	public String getRank(int level){
-		return ranks.get(level);
+		// TODO: Improve this
+		for (int i = level; i >= 0; --i) {
+			String rank = ranks.get(i);
+			if (rank != null) {
+				return rank;
+			}
+		}
+		
+		return null;
 	}
 	
 	/**
