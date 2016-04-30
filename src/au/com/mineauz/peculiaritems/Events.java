@@ -16,6 +16,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -199,5 +200,19 @@ public class Events implements Listener {
 				((Player)event.getPlayer()).updateInventory();
 			}
 		});
+	}
+	
+	@EventHandler(ignoreCancelled=true)
+	private void onDropItem(PlayerDropItemEvent event) {
+		ItemStack stack = event.getItemDrop().getItemStack();
+		PeculiarItem item = new PeculiarItem(stack);
+		// Needs to be a peculiar item
+		if (!item.isPeculiar()) {
+			return;
+		}
+		
+		// Just in case it was dropped from an anvil or enchanting table
+		item.update();
+		item.addEnchantIfNeeded();
 	}
 }
