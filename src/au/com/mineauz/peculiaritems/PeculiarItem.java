@@ -76,6 +76,7 @@ public class PeculiarItem {
 			primaryStat = stat;
 		}
 
+		checkAndUpdateName();
 		saveStats();
 		update();
 	}
@@ -87,6 +88,7 @@ public class PeculiarItem {
 		
 		stats.put(stat, value);
 		
+		checkAndUpdateName();
 		saveStats();
 		update();
 	}
@@ -165,6 +167,7 @@ public class PeculiarItem {
 			}
 		}
 		
+		checkAndUpdateName();
 		saveStats();
 		update();
 	}
@@ -192,6 +195,14 @@ public class PeculiarItem {
 		update();
 	}
 	
+	public String getDisplayName() {
+		return displayName;
+	}
+	
+	public boolean hasDisplayName() {
+		return displayName != null;
+	}
+	
 	public String getActualItemName() {
 		// Create an item to get the real name to display
 		ItemStack tempItem = new ItemStack(getItemStack());
@@ -215,17 +226,21 @@ public class PeculiarItem {
 		update();
 	}
 	
+	private String getFormattedName() {
+		String rank = getRank();
+		
+		if (displayName != null) {
+			return ChatColor.GOLD + rank + " " + displayName;
+		} else {
+			return ChatColor.GOLD + rank + " " + getActualItemName();
+		}
+	}
+	
 	public void update() {
 		ItemStack stack = getItemStack();
 		ItemMeta meta = stack.getItemMeta();
 		
-		String rank = getRank();
-		
-		if (displayName != null) {
-			meta.setDisplayName(ChatColor.GOLD + rank + " " + displayName);
-		} else {
-			meta.setDisplayName(ChatColor.GOLD + rank + " " + getActualItemName());
-		}
+		meta.setDisplayName(getFormattedName());
 		
 		// Display stats
 		List<String> lore = Lists.newArrayList();
@@ -258,7 +273,7 @@ public class PeculiarItem {
 		return item;
 	}
 	
-	private void saveStats() {
+	public void saveStats() {
 		item.getProperties().clear(Constants.STORED_STATS_ID);
 		item.getProperties().clear(Constants.PECULIAR_DATA_ID);
 		
@@ -276,5 +291,28 @@ public class PeculiarItem {
 		if (primaryStat != null) {
 			item.getProperties().add(new StringProperty(Constants.FIELD_PRIMARYSTAT, Constants.PECULIAR_DATA_ID, primaryStat.getName()));
 		}
+	}
+	
+	/**
+	 * Checks if the actual display name matches what it should be, if not, update the stored name
+	 * @return True if the name was changed
+	 */
+	public boolean checkAndUpdateName() {
+		ItemMeta meta = item.getItemMeta();
+		if (meta.hasDisplayName()) {
+			String actual = meta.getDisplayName();
+			String expected = getFormattedName();
+			
+			// Does the name match?
+			if (!actual.equals(expected)) {
+				displayName = actual;
+				return true;
+			}
+		} else if (displayName != null) {
+			displayName = null;
+			return true;
+		}
+		
+		return false;
 	}
 }
