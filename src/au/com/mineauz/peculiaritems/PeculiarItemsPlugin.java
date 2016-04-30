@@ -21,6 +21,8 @@ public class PeculiarItemsPlugin extends JavaPlugin {
 		saveDefaultConfig();
 		reloadConfig();
 		
+		PeculiarEnchantment.registerEnchant(getConfig().getInt("peculiarEnchantId", 134));
+		
 		data = new Data();
 		
 		loadRanks();

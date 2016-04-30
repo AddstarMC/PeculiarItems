@@ -76,6 +76,7 @@ public class PeculiarItem {
 			primaryStat = stat;
 		}
 
+		addEnchantIfNeeded();
 		checkAndUpdateName();
 		saveStats();
 		update();
@@ -314,5 +315,11 @@ public class PeculiarItem {
 		}
 		
 		return false;
+	}
+	
+	private void addEnchantIfNeeded() {
+		if (item.getEnchantmentLevel(PeculiarEnchantment.getEnchantment()) == 0) {
+			item.addUnsafeEnchantment(PeculiarEnchantment.getEnchantment(), 1);
+		}
 	}
 }
