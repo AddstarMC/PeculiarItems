@@ -5,13 +5,14 @@ import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -32,6 +33,10 @@ public class Events implements Listener {
 			return;
 		}
 		
+		if (event.getCurrentItem().getType() == Material.AIR || event.getCursor().getType() == Material.AIR) {
+			return;
+		}
+		
 		PeculiarModifier modifier = new PeculiarModifier(event.getCursor());
 		PeculiarItem item = new PeculiarItem(event.getCurrentItem());
 		
@@ -39,16 +44,15 @@ public class Events implements Listener {
 			return;
 		}
 		
-		
-		// TODO: Item type check. ie. gold for gold items, diamond for diamond items, etc.
-		
 		Set<PeculiarStat> toRemove = Sets.newHashSet();
 		
+		boolean addedAny = false;
 		// Add the stats to the item
 		for (PeculiarStat stat : modifier.getStats()) {
 			if (!item.hasStat(stat) && stat.isCompatibleItem(item.getItemStack())) {
 				item.addStat(stat);
 				toRemove.add(stat);
+				addedAny = true;
 			}
 		}
 		
@@ -66,6 +70,15 @@ public class Events implements Listener {
 		
 		event.setCurrentItem(item.getItemStack());
 		event.setCancelled(true);
+		
+		Player player = (Player)event.getWhoClicked();
+		
+		if (addedAny) {
+			player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 10, 1);
+		} else {
+			player.sendMessage(ChatColor.RED + "That item can not accept this stat");
+			player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BASS, 10, 1);
+		}
 	}
 	
 	@EventHandler

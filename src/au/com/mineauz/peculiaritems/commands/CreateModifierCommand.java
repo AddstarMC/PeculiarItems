@@ -75,7 +75,7 @@ public class CreateModifierCommand implements ICommand {
 			target = player.getInventory().getItemInMainHand();
 			isHand = true;
 			
-			if (target == null) {
+			if (target == null || target.getType() == Material.AIR) {
 				player.sendMessage(ChatColor.RED + "You are not holding an item");
 				return true;
 			}
