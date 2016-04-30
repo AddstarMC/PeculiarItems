@@ -89,7 +89,6 @@ public class PeculiarItem {
 		
 		stats.put(stat, value);
 		
-		checkAndUpdateName();
 		saveStats();
 		update();
 	}
@@ -168,7 +167,6 @@ public class PeculiarItem {
 			}
 		}
 		
-		checkAndUpdateName();
 		saveStats();
 		update();
 	}
@@ -317,7 +315,7 @@ public class PeculiarItem {
 		return false;
 	}
 	
-	private void addEnchantIfNeeded() {
+	public void addEnchantIfNeeded() {
 		if (item.getEnchantmentLevel(PeculiarEnchantment.getEnchantment()) == 0) {
 			item.addUnsafeEnchantment(PeculiarEnchantment.getEnchantment(), 1);
 		}

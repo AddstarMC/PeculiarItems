@@ -12,7 +12,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;import org.bukkit.event.inventory.InventoryEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -115,6 +115,7 @@ public class Events implements Listener {
 		meta.setLore(lore);
 		
 		resultStack.setItemMeta(meta);
+		item.addEnchantIfNeeded();
 		
 		event.setResult(item.getItemStack());
 	}
