@@ -120,9 +120,14 @@ public class Events implements Listener {
 		event.setResult(item.getItemStack());
 	}
 	
-	@EventHandler()
-	private void onOpenAnvil(InventoryOpenEvent event) {
-		if (event.getInventory().getType() != InventoryType.ANVIL || !(event.getPlayer() instanceof Player)) {
+	@EventHandler
+	private void onOpenInventory(InventoryOpenEvent event) {
+		if (!(event.getPlayer() instanceof Player)) {
+			return;
+		}
+		
+		if (event.getInventory().getType() != InventoryType.ANVIL && 
+			event.getInventory().getType() != InventoryType.ENCHANTING) {
 			return;
 		}
 		
@@ -138,26 +143,36 @@ public class Events implements Listener {
 				continue;
 			}
 			
-			// Force the item to have a normal name for renaming purposes
-			ItemMeta meta = stack.getItemMeta();
-			
-			if (item.hasDisplayName()) {
-				meta.setDisplayName(item.getDisplayName());
-			} else {
-				meta.setDisplayName(null);
+			if (event.getInventory().getType() == InventoryType.ANVIL) {
+				// Force the item to have a normal name for renaming purposes
+				ItemMeta meta = stack.getItemMeta();
+				
+				if (item.hasDisplayName()) {
+					meta.setDisplayName(item.getDisplayName());
+				} else {
+					meta.setDisplayName(null);
+				}
+				
+				List<String> lore = meta.getLore();
+				lore.add(0, ChatColor.GOLD + item.getRank() + " " + item.getActualItemName());
+				meta.setLore(lore);
+				
+				stack.setItemMeta(meta);
+			} else if (event.getInventory().getType() == InventoryType.ENCHANTING) {
+				// Remove the shine enchant so it can be enchanted
+				stack.removeEnchantment(PeculiarEnchantment.getEnchantment());
 			}
-			
-			List<String> lore = meta.getLore();
-			lore.add(0, ChatColor.GOLD + item.getRank() + " " + item.getActualItemName());
-			meta.setLore(lore);
-			
-			stack.setItemMeta(meta);
 		}
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
-	private void onCloseAnvil(final InventoryCloseEvent event) {
-		if (event.getInventory().getType() != InventoryType.ANVIL || !(event.getPlayer() instanceof Player)) {
+	private void onCloseInventory(final InventoryCloseEvent event) {
+		if (!(event.getPlayer() instanceof Player)) {
+			return;
+		}
+		
+		if (event.getInventory().getType() != InventoryType.ANVIL &&
+			event.getInventory().getType() != InventoryType.ENCHANTING) {
 			return;
 		}
 		
@@ -174,6 +189,7 @@ public class Events implements Listener {
 			}
 			
 			item.update();
+			item.addEnchantIfNeeded();
 		}
 		
 		// Refresh the view
@@ -184,5 +200,4 @@ public class Events implements Listener {
 			}
 		});
 	}
-
 }
