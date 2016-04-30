@@ -17,6 +17,7 @@ public class PeculiarStats {
 	public static final BlocksBrokenStat BLOCKS_BROKEN = new BlocksBrokenStat();
 	public static final MonstersKilledStat MOBS_KILLED = new MonstersKilledStat();
 	public static final TimesProtectedStat TIMES_PROTECTED = new TimesProtectedStat();
+	public static final DamageTakenStat DAMAGE_TAKEN = new DamageTakenStat();
 	
 	private final Map<String, PeculiarStat> stats;
 	private final SetMultimap<Plugin, PeculiarStat> pluginStats;
@@ -28,6 +29,7 @@ public class PeculiarStats {
 		addStat(BLOCKS_BROKEN, PeculiarItemsPlugin.getPlugin());
 		addStat(MOBS_KILLED, PeculiarItemsPlugin.getPlugin());
 		addStat(TIMES_PROTECTED, PeculiarItemsPlugin.getPlugin());
+		addStat(DAMAGE_TAKEN, PeculiarItemsPlugin.getPlugin());
 	}
 	
 	public void addStat(PeculiarStat stat, Plugin plugin) {
