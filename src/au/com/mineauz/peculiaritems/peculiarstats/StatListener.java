@@ -19,7 +19,7 @@ public class StatListener implements Listener {
 	@EventHandler
 	private void blockBreak(BlockBreakEvent event) {
 		ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
-		if (held == null) {
+		if (held == null || held.getType() == Material.AIR) {
 			return;
 		}
 		
@@ -45,7 +45,7 @@ public class StatListener implements Listener {
 		}
 		
 		ItemStack held = ent.getKiller().getInventory().getItemInMainHand();
-		if (held == null) {
+		if (held == null || held.getType() == Material.AIR) {
 			return;
 		}
 		
