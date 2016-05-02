@@ -24,6 +24,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.google.common.collect.Sets;
 
 import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStat;
+import au.com.mineauz.peculiaritems.peculiarstats.PeculiarSubStat;
 import net.md_5.bungee.api.ChatColor;
 
 public class Events implements Listener {
@@ -51,22 +52,63 @@ public class Events implements Listener {
 		// Add the stats to the item
 		for (PeculiarStat stat : modifier.getStats()) {
 			if (!item.hasStat(stat) && stat.isCompatibleItem(item.getItemStack())) {
+				// Add parent stat if needed
+				if (stat instanceof PeculiarSubStat) {
+					PeculiarStat parent = ((PeculiarSubStat)stat).getParent();
+					
+					if (!item.hasStat(parent)) {
+						item.addStat(parent);
+					}
+				}
+				
 				item.addStat(stat);
 				toRemove.add(stat);
 				addedAny = true;
 			}
 		}
 		
-		// Remove the added stats from the modifier
-		for (PeculiarStat stat : toRemove) {
-			modifier.removeStat(stat);
+		// Check if the modifier would have any remaining stats after removing the used ones
+		boolean hasRemainingStats = false;
+		for (PeculiarStat stat : modifier.getStats()) {
+			if (!toRemove.contains(stat)) {
+				hasRemainingStats = true;
+				break;
+			}
 		}
 		
-		if (modifier.getStats().isEmpty()) {
-			// Remove it
-			event.setCursor(null);
-		} else {
-			event.setCursor(modifier.getItemStack());
+		if (!toRemove.isEmpty()) {
+			// Handle multiple item stacks
+			if (modifier.getItemStack().getAmount() > 1)
+			{
+				if (hasRemainingStats) {
+					ItemStack clonedModifierStack = modifier.getItemStack().clone();
+					clonedModifierStack.setAmount(1);
+					PeculiarModifier clonedModifier = new PeculiarModifier(clonedModifierStack);
+					
+					// Remove the added stats from the modifier
+					for (PeculiarStat stat : toRemove) {
+						clonedModifier.removeStat(stat);
+					}
+					
+					// Attempt to add the item back
+					if (!event.getWhoClicked().getInventory().addItem(clonedModifier.getItemStack()).isEmpty()) {
+						// Didnt fit, just drop it
+						event.getWhoClicked().getWorld().dropItemNaturally(event.getWhoClicked().getLocation(), clonedModifier.getItemStack());
+					}
+				}
+				
+				// decrease the amount held
+				modifier.getItemStack().setAmount(modifier.getItemStack().getAmount() - 1);
+			} else {
+				if (hasRemainingStats) {
+					// Remove the added stats from the modifier
+					for (PeculiarStat stat : toRemove) {
+						modifier.removeStat(stat);
+					}
+				} else {
+					event.setCursor(null);
+				}
+			}
 		}
 		
 		event.setCurrentItem(item.getItemStack());
@@ -116,7 +158,6 @@ public class Events implements Listener {
 		meta.setLore(lore);
 		
 		resultStack.setItemMeta(meta);
-		item.addEnchantIfNeeded();
 		
 		event.setResult(item.getItemStack());
 	}
@@ -159,6 +200,8 @@ public class Events implements Listener {
 				meta.setLore(lore);
 				
 				stack.setItemMeta(meta);
+				stack.removeEnchantment(PeculiarEnchantment.getEnchantment());
+				
 			} else if (event.getInventory().getType() == InventoryType.ENCHANTING) {
 				// Remove the shine enchant so it can be enchanted
 				stack.removeEnchantment(PeculiarEnchantment.getEnchantment());

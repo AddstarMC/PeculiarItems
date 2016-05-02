@@ -8,6 +8,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -15,6 +17,7 @@ import au.com.addstar.monolith.MonoItemStack;
 import au.com.addstar.monolith.properties.PropertyBase;
 import au.com.addstar.monolith.properties.StringProperty;
 import au.com.mineauz.peculiaritems.peculiarstats.PeculiarStat;
+import au.com.mineauz.peculiaritems.peculiarstats.PeculiarSubStat;
 
 public class PeculiarModifier {
 	private final MonoItemStack item;
@@ -80,8 +83,31 @@ public class PeculiarModifier {
 		lore.add("");
 		
 		lore.add(ChatColor.GOLD + "Stats Contained: ");
+		
+		// Group stats by their parent stat
+		ListMultimap<PeculiarStat, PeculiarSubStat> groupedStats = ArrayListMultimap.create();
+		
 		for (PeculiarStat stat : stats) {
-			lore.add(" " + stat.getDisplayColor() + stat.getDisplayName());
+			if (stat instanceof PeculiarSubStat) {
+				PeculiarSubStat subStat = (PeculiarSubStat)stat;
+				groupedStats.put(subStat.getParent(), subStat);
+			} else {
+				groupedStats.put(stat, null);
+			}
+		}
+		
+		for (PeculiarStat parentStat : groupedStats.keySet()) {
+			lore.add(" " + parentStat.getDisplayColor() + parentStat.getDisplayName());
+			
+			// Display sub stats within that
+			List<PeculiarSubStat> subStats = groupedStats.get(parentStat);
+			for (PeculiarSubStat subStat : subStats) {
+				if (subStat == null) {
+					continue;
+				}
+				
+				lore.add("  " + subStat.getDisplayColor() + subStat.getDisplayName());
+			}
 		}
 		
 		meta.setLore(lore);
