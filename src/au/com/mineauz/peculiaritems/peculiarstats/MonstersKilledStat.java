@@ -55,7 +55,7 @@ public class MonstersKilledStat extends PeculiarStat implements SubStatable<Enti
 	public boolean isCompatibleItem(ItemStack item) {
 		ToolType type = PCRUtils.getType(item);
 		
-		return (type == ToolType.Sword || type == ToolType.Axe);
+		return (type == ToolType.Sword || type == ToolType.Axe || type == ToolType.Pickaxe || type == ToolType.Shovel || type == ToolType.Hoe);
 	}
 	
 	private class MonsterTypeSubStat extends PeculiarSubStat {
